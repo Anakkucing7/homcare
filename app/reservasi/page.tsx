@@ -109,8 +109,10 @@ export default function ReservationPage() {
     phoneField.setCustomValidity(/^(?:\+?62|0)8\d{7,11}$/.test(phone) ? "" : "Masukkan nomor WhatsApp Indonesia yang valid, misalnya 081234567890.");
     if (!form.reportValidity()) return;
     const data = new FormData(form);
-    const message = ["Halo, saya ingin mengajukan reservasi homecare.", `Nama: ${data.get("name")}`, `WhatsApp: ${phone}`, "Layanan:", ...entries.map((item) => `- ${item.name} x${item.quantity}: ${formatRupiah(item.service.price * item.quantity)}`), `Subtotal layanan: ${formatRupiah(total)}`, `Jadwal: ${data.get("date")} pukul ${data.get("time")}`, `Alamat kunjungan: ${data.get("address")}`, data.get("notes") ? `Catatan: ${data.get("notes")}` : ""].filter(Boolean).join("\n");
-    const tab = window.open(`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(message)}`, "_blank");
+    const message = ["Halo, saya ingin mengajukan reservasi homecare.", `Nama: ${data.get("name")}`, `WhatsApp: ${phone}`, "Pilihan:", ...entries.map((item) => `- ${item.name} x${item.quantity}: ${formatRupiah(item.service.price * item.quantity)}`), `Subtotal: ${formatRupiah(total)}`, `Jadwal: ${data.get("date")} pukul ${data.get("time")}`, `Alamat kunjungan: ${data.get("address")}`, data.get("notes") ? `Catatan: ${data.get("notes")}` : ""].filter(Boolean).join("\n");
+    const whatsappUrl = new URL(`https://wa.me/${contact.whatsapp}`);
+    whatsappUrl.searchParams.set("text", message);
+    const tab = window.open(whatsappUrl.href, "_blank");
     if (tab) { tab.opener = null; setNotice("WhatsApp terbuka. Tinjau detail reservasi, lalu tekan Kirim."); }
     else setNotice("Izinkan pop-up untuk membuka WhatsApp, lalu kirim pesan reservasi Anda.");
   }

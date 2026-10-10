@@ -789,3 +789,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .reservation-service-grid { grid-template-columns: 1fr; }
   .reservation-service-media { height: 175px; }
 }
+
+@media (max-width: 720px) {
+  .visit-form label { font-size: 13px; }
+  .visit-form input, .visit-form textarea { min-height: 48px; font-size: 16px; }
+  .visit-form textarea { min-height: 76px; }
+  .reservation-category-tabs button { min-height: 44px; }
+  .reservation-service-content > p { font-size: 12px; }
+  .service-add-button { min-height: 44px; font-size: 12px; }
+  .cart-item-controls button { width: 40px; height: 40px; }
+}
+@media (max-width: 380px) {
+  .visit-form-row { grid-template-columns: 1fr; }
+}
