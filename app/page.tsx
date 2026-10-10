@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "../components/icons";
-import { contact } from "../lib/services";
+import { categories as defaultCategories, contact } from "../lib/services";
 import { createClient } from "../lib/supabase/client";
 import { isSupabaseConfigured } from "../lib/supabase/config";
 
@@ -39,16 +39,17 @@ function goToBooking() {
       <main>
         <section id="beranda" className="hero section-wrap">
           <div className="hero-copy">
-            <h1>Perawatan profesional, nyaman dari rumah.</h1>
-            <p>Layanan perawatan homecare yang membantu Anda mendapatkan pelayanan kesehatan di rumah dengan lebih praktis dan nyaman.</p>
+            <p className="hero-eyebrow">HOMECARE KE RUMAH · JABODETABEK</p>
+            <h1>Perawatan kesehatan yang tenang, di rumah Anda.</h1>
+            <p>Infus, suntik, cek darah, NGT, dan perawatan luka oleh perawat STR aktif. Ajukan reservasi dengan mudah, lalu tim kami mengonfirmasi melalui WhatsApp.</p>
             <div className="hero-actions">
               <Link className="button button-primary" href="/reservasi">Reservasi sekarang <Icon name="arrow" /></Link>
               <a className="button button-secondary" href="#layanan">Lihat layanan</a>
             </div>
             <div className="hero-proof" aria-label="Informasi layanan">
               <span><Icon name="pin" /> Jabodetabek</span>
-              <span><Icon name="shield" /> Tenaga sesuai tindakan</span>
-              <span><Icon name="clock" /> Jadwal sesuai kebutuhan</span>
+              <span><Icon name="shield" /> Perawat STR aktif</span>
+              <span><Icon name="check" /> Tensi & SpO₂ gratis</span>
             </div>
           </div>
           <div className="hero-visual">
@@ -74,10 +75,7 @@ function goToBooking() {
           </div>
         </section>
 
-        <section id="layanan" className="service-discovery section-wrap">
-          <div className="service-discovery-copy"><p className="section-kicker">Pilih sesuai kebutuhan</p><h2>Layanan perawatan, dalam satu tempat.</h2><p>Lihat foto, rincian, dan harga setiap layanan. Tambahkan pilihan ke keranjang sebelum mengatur jadwal kunjungan.</p><Link className="button button-primary" href="/reservasi">Jelajahi layanan <Icon name="arrow" /></Link></div>
-          <div className="service-discovery-visual"><Image src="/images/homecare-visit.jpg" alt="Perawat mendampingi pasien di rumah" fill sizes="(max-width: 720px) 90vw, 42vw" /><span><Icon name="check" /> Pilih layanan, lalu atur kunjungan</span></div>
-        </section>
+        <HomeCategoryPreview />
 
         <section id="cara-reservasi" className="booking-steps-section">
           <div className="section-wrap booking-steps">
@@ -106,6 +104,37 @@ function goToBooking() {
       <footer className="site-footer"><div className="footer-main section-wrap"><a className="brand footer-brand" href="#beranda"><span className="brand-mark"><Icon name="heart" /></span><span className="brand-name">Layanan <b>Homecare</b></span></a><p>Perawatan kesehatan di rumah, di kantor, dan di lokasi Anda.</p><a className="footer-phone" href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noreferrer"><Icon name="phone" />{contact.phoneDisplay}</a></div><div className="footer-bottom section-wrap"><span>© {new Date().getFullYear()} Layanan Homecare</span><span>Area layanan: Jabodetabek</span><a href="#faq">Pertanyaan umum</a></div></footer>
     </>
   );
+}
+
+function HomeCategoryPreview() {
+  const [items, setItems] = useState(defaultCategories.map(({ id, name, summary }) => ({ id, name, description: summary, image_url: "/images/homecare-visit.jpg" })));
+  const [counts, setCounts] = useState<Record<string, number>>(() => Object.fromEntries(defaultCategories.map(({ id, services }) => [id, services.length])));
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    let active = true;
+    const supabase = createClient();
+    void Promise.all([
+      supabase.from("service_categories").select("id,name,description,image_url").eq("active", true).order("sort_order"),
+      supabase.from("services").select("category_id").eq("active", true),
+    ]).then(([categoryResult, serviceResult]) => {
+      if (!active) return;
+      if (!categoryResult.error && categoryResult.data) setItems(categoryResult.data);
+      if (serviceResult.data) setCounts(serviceResult.data.reduce<Record<string, number>>((result, service) => {
+        result[service.category_id] = (result[service.category_id] ?? 0) + 1;
+        return result;
+      }, {}));
+    });
+    return () => { active = false; };
+  }, []);
+
+  return <section id="layanan" className="service-discovery section-wrap">
+    <div className="service-discovery-head"><div><p className="section-kicker">Layanan homecare</p><h2>Pilih layanan sesuai kebutuhan.</h2><p>Katalog lengkap dan harga tersedia di halaman reservasi.</p></div><Link className="text-link" href="/reservasi">Lihat semua layanan <Icon name="arrow" /></Link></div>
+    <div className="home-category-grid">{items.map((category, index) => <Link key={category.id} href={`/reservasi?kategori=${encodeURIComponent(category.id)}`} className={`home-category-card${index === 0 ? " is-featured" : ""}`}>
+      {category.image_url && category.image_url !== "/images/homecare-visit.jpg" ? <img src={category.image_url} alt="" loading="lazy" /> : index === 0 ? <Image src="/images/homecare-visit.jpg" alt="" fill sizes="(max-width: 720px) 45vw, 28vw" /> : <span className={`category-art category-art-${index}`} aria-hidden="true"><Icon name={(["heart", "syringe", "droplet", "tube", "bandage"] as const)[index % 5]} /></span>}
+      <span className="home-category-shade" aria-hidden="true" /><span className="home-category-count">{counts[category.id] ?? 0} layanan</span><span className="home-category-copy"><b>{category.name}</b><small>{category.description || "Lihat pilihan layanan dan rincian harga."}</small></span><span className="home-category-arrow"><Icon name="arrow" /></span>
+    </Link>)}</div>
+  </section>;
 }
 
 function TestimonialPreview() {
