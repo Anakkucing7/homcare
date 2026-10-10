@@ -39,6 +39,8 @@ begin
 end;
 $$;
 
+revoke execute on function public.create_homecare_profile() from public, anon, authenticated;
+
 drop trigger if exists on_homecare_user_created on auth.users;
 create trigger on_homecare_user_created
   after insert on auth.users
