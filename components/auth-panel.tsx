@@ -77,7 +77,7 @@ export function AuthPanel({ configured }: { configured: boolean }) {
     router.refresh();
   }
 
-  return <main className="auth-page">
+  return <main className="auth-page"><div className="auth-layout"><aside className="auth-visual"><img src="/images/homecare-visit.jpg" alt="Perawat mendampingi pasien di rumah" /><span className="auth-visual-shade" /><div><p className="section-kicker">Perawatan lebih dekat</p><h2>Nyaman dirawat di tempat yang paling akrab.</h2><p>Pesan kunjungan homecare dengan mudah, bersama tenaga kesehatan profesional.</p></div></aside>
     <section className="auth-card" aria-labelledby="auth-title">
       <Link className="auth-brand" href="/"><span className="brand-mark"><Icon name="heart" /></span><span className="brand-name">Layanan <b>Homecare</b></span></Link>
       <p className="section-kicker">Akun Homecare</p>
@@ -100,6 +100,6 @@ export function AuthPanel({ configured }: { configured: boolean }) {
       {configured && !resetting && role === "user" && <p className="auth-switch-copy">{registering ? "Sudah punya akun?" : "Belum punya akun?"} <button type="button" onClick={() => { setRegistering(!registering); setNotice(""); }}>{registering ? "Masuk" : "Daftar gratis"}</button></p>}
       {!resetting && role === "owner" && <p className="auth-owner-note">Akses owner hanya diberikan oleh pemilik project.</p>}
       {!resetting && <Link className="auth-guest-link" href="/reservasi">Lanjut reservasi tanpa akun <Icon name="arrow" /></Link>}
-    </section>
+    </section></div>
   </main>;
 }

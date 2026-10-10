@@ -10,6 +10,7 @@ import { isSupabaseConfigured } from "../../lib/supabase/config";
 
 type Category = { id: string; name: string; description: string; image_url: string };
 type Service = { id: string; category_id: string; name: string; description: string; note: string; price: number; media_url: string; media_type: "image" | "video" };
+type CartEntry = CartItem & { id: string; name: string; service: Service };
 
 const fallbackCategories: Category[] = defaultCategories.map(({ id, name, summary }) => ({ id, name, description: summary, image_url: "/images/homecare-visit.jpg" }));
 const fallbackServices: Service[] = defaultCategories.flatMap((category) => category.services.map((service) => ({ id: service.name, category_id: category.id, name: service.name, description: service.note ?? category.summary, note: service.note ?? "", price: service.price, media_url: "/images/homecare-visit.jpg", media_type: "image" })));
@@ -27,15 +28,21 @@ export default function ReservationPage() {
   const [profile, setProfile] = useState({ full_name: "", phone: "", signedIn: false });
   const [categories, setCategories] = useState(fallbackCategories);
   const [services, setServices] = useState(fallbackServices);
-  const [categoryId, setCategoryId] = useState("");
+  const [categoryId, setCategoryId] = useState("all");
   const [selected, setSelected] = useState<Service | null>(null);
   const [added, setAdded] = useState("");
+  const [step, setStep] = useState<"catalog" | "visit">("catalog");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     setCart(getCart());
     setMinimumDate(localDate());
     setReady(true);
-    if (!isSupabaseConfigured) return;
+    const requestedCategory = new URLSearchParams(window.location.search).get("kategori");
+    if (!isSupabaseConfigured) {
+      if (fallbackCategories.some((category) => category.id === requestedCategory)) setCategoryId(requestedCategory!);
+      return;
+    }
     let active = true;
     void (async () => {
       const supabase = createClient();
@@ -48,8 +55,7 @@ export default function ReservationPage() {
       setCategories(availableCategories);
       if (serviceResult.error || !serviceResult.data?.length) setServices(fallbackServices);
       else setServices(serviceResult.data as Service[]);
-      const requestedCategory = new URLSearchParams(window.location.search).get("kategori");
-      setCategoryId(availableCategories.some((category) => category.id === requestedCategory) ? requestedCategory! : availableCategories[0]?.id ?? "");
+      setCategoryId(availableCategories.some((category) => category.id === requestedCategory) ? requestedCategory! : availableCategories[0]?.id ?? "all");
     })();
     return () => { active = false; };
   }, []);
@@ -74,13 +80,19 @@ export default function ReservationPage() {
     return () => { active = false; };
   }, []);
 
-  const visibleServices = useMemo(() => services.filter((service) => service.category_id === categoryId), [services, categoryId]);
+  const visibleServices = useMemo(() => services.filter((service) => (categoryId === "all" || service.category_id === categoryId) && `${service.name} ${service.description} ${service.note}`.toLowerCase().includes(searchTerm.trim().toLowerCase())), [services, categoryId, searchTerm]);
   const entries = cart.flatMap((item) => {
     const service = services.find((candidate) => item.id ? candidate.id === item.id : candidate.name === item.name);
     return service ? [{ ...item, id: service.id, name: service.name, service }] : [];
   });
   const total = entries.reduce((sum, item) => sum + item.service.price * item.quantity, 0);
+  const itemCount = entries.reduce((count, item) => count + item.quantity, 0);
   function updateCart(next: CartItem[]) { setCart(next); }
+  function continueToVisit() {
+    if (!entries.length) return;
+    setStep("visit");
+    window.requestAnimationFrame(() => document.getElementById("reservasi-lanjutan")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }
   function addService(service: Service) {
     addToCart(service.name, service.id);
     setCart(getCart());
@@ -106,29 +118,23 @@ export default function ReservationPage() {
   return <>
     <header className="site-header reservation-header"><Link className="brand" href="/" aria-label="Layanan Homecare, beranda"><span className="brand-mark"><Icon name="heart" /></span><span className="brand-name">Layanan <b>Homecare</b></span></Link><Link className="text-link reservation-back" href="/">Kembali ke beranda <Icon name="arrow" /></Link></header>
     <main className="reservation-page">
-      <div className="reservation-heading"><p className="section-kicker">Reservasi kunjungan</p><h1>Pilih perawatan Anda.</h1><p>Lihat detail dan harga, tambahkan ke keranjang, lalu atur waktu kunjungan.</p></div>
-      <section className="reservation-catalog" aria-label="Katalog layanan">
+      <div className="reservation-heading"><p className="section-kicker">Reservasi kunjungan</p><h1>{step === "catalog" ? "Pilih perawatan Anda." : "Atur kunjungan Anda."}</h1><p>{step === "catalog" ? "Temukan layanan yang sesuai, lihat detail dan harga, lalu tambahkan ke keranjang." : "Tinjau pilihan Anda dan lengkapi detail jadwal untuk mengajukan reservasi."}</p></div>
+      <ol className="reservation-progress" aria-label="Tahap reservasi"><li className={step === "catalog" ? "is-current" : "is-complete"}><span>01</span>Pilih layanan</li><li className={step === "visit" ? "is-current" : ""}><span>02</span>Atur kunjungan</li></ol>
+      {step === "catalog" && <><section className="reservation-catalog" aria-label="Katalog layanan">
         <div className="reservation-catalog-top"><div><h2>Layanan yang tersedia</h2><p>Harga dalam Rupiah. Biaya transport dapat berlaku untuk jarak lebih dari 5 km.</p></div><Link className="catalog-cart-link" href="#keranjang"><Icon name="calendar" /> Keranjang <span>{entries.reduce((count, item) => count + item.quantity, 0)}</span></Link></div>
-        <div className="reservation-category-tabs" role="tablist" aria-label="Kategori layanan">{categories.map((category) => <button key={category.id} role="tab" aria-selected={category.id === categoryId} className={category.id === categoryId ? "active" : ""} onClick={() => setCategoryId(category.id)}>{category.name}</button>)}</div>
+        <label className="service-search"><span className="sr-only">Cari layanan</span><span className="search-mark" aria-hidden="true" /><input type="search" placeholder="Cari layanan, misalnya cek darah" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} /></label>
+        <div className="reservation-category-tabs" role="tablist" aria-label="Kategori layanan"><button role="tab" aria-selected={categoryId === "all"} className={categoryId === "all" ? "active" : ""} onClick={() => setCategoryId("all")}>Semua layanan</button>{categories.map((category) => <button key={category.id} role="tab" aria-selected={category.id === categoryId} className={category.id === categoryId ? "active" : ""} onClick={() => setCategoryId(category.id)}>{category.name}</button>)}</div>
         <div className="reservation-service-grid">{visibleServices.map((service) => <article className="reservation-service-card" key={service.id}>
           <button className="reservation-service-media" type="button" onClick={() => setSelected(service)} aria-label={`Lihat detail ${service.name}`}>
             {service.media_type === "video" ? <video src={service.media_url} muted playsInline preload="metadata" /> : <img src={service.media_url || "/images/homecare-visit.jpg"} alt={`Contoh layanan ${service.name}`} loading="lazy" />}
             <span className="service-media-hint">{service.media_type === "video" ? "Video" : "Lihat detail"} <Icon name="arrow" /></span>
           </button>
-          <div className="reservation-service-content"><button type="button" className="reservation-service-title" onClick={() => setSelected(service)}>{service.name}</button><p>{service.description || service.note || "Perawatan dilakukan oleh tenaga kesehatan profesional."}</p><div className="reservation-service-bottom"><b>{formatRupiah(service.price)}</b><button className="service-add-button" type="button" onClick={() => addService(service)}>{added === service.id ? "Ditambahkan ✓" : "Tambah +"}</button></div></div>
+          <div className="reservation-service-content"><button type="button" className="reservation-service-title" onClick={() => setSelected(service)}>{service.name}</button><p>{service.description || service.note || "Perawatan dilakukan oleh tenaga kesehatan profesional."}</p><div className="reservation-service-bottom"><b>{formatRupiah(service.price)}</b><button className="service-add-button" type="button" onClick={() => addService(service)}>{added === service.id ? "Ditambahkan ✓" : "Tambah ke keranjang"}</button></div></div>
         </article>)}</div>
-        {!visibleServices.length && <p className="catalog-empty">Belum ada layanan aktif di kategori ini.</p>}
-      </section>
-      <div className="reservation-layout" id="keranjang">
-        <section className="cart-card" aria-labelledby="cart-title">
-          <div className="cart-card-heading"><div><p className="section-kicker">Pilihan Anda</p><h2 id="cart-title">Keranjang <span>({entries.reduce((count, item) => count + item.quantity, 0)})</span></h2></div></div>
-          {!ready ? <p className="cart-loading">Memuat keranjang…</p> : entries.length === 0 ? <div className="cart-empty-inline"><Icon name="calendar" /><p>Tambahkan layanan pilihan Anda dari daftar di atas.</p></div> : <ul className="cart-list">{entries.map((item) => <li className="cart-item" key={item.id}>
-            <div className="cart-item-info"><b>{item.name}</b>{item.service.note && <small>{item.service.note}</small>}<span>{formatRupiah(item.service.price)} / layanan</span></div>
-            <div className="cart-item-controls" aria-label={`Jumlah ${item.name}`}><button type="button" onClick={() => updateCart(changeCartQuantity(item.name, -1, item.id))} aria-label={`Kurangi ${item.name}`}>−</button><span aria-live="polite">{item.quantity}</span><button type="button" onClick={() => updateCart(changeCartQuantity(item.name, 1, item.id))} aria-label={`Tambah ${item.name}`}>+</button><button className="remove-item" type="button" onClick={() => updateCart(removeFromCart(item.name, item.id))} aria-label={`Hapus ${item.name}`}>Hapus</button></div>
-            <b className="cart-item-total">{formatRupiah(item.service.price * item.quantity)}</b>
-          </li>)}</ul>}
-          <div className="cart-subtotal"><span>Subtotal layanan</span><b>{formatRupiah(total)}</b></div><p className="transport-note">Ketersediaan dan biaya akhir dikonfirmasi sebelum kunjungan.</p>
-        </section>
+        {!visibleServices.length && <p className="catalog-empty">Tidak ada layanan yang cocok. Coba kata kunci atau kategori lain.</p>}
+      </section><section className="cart-card reservation-review" id="keranjang" aria-labelledby="cart-title"><CartContents entries={entries} ready={ready} total={total} onChange={updateCart} /><div className="cart-review-actions"><p className="transport-note">Ketersediaan dan biaya akhir dikonfirmasi sebelum kunjungan.</p><button className="button button-primary" type="button" onClick={continueToVisit} disabled={!entries.length}>Lanjut ke jadwal <Icon name="arrow" /></button></div></section></>}
+      {step === "visit" && <div className="reservation-layout" id="reservasi-lanjutan">
+        <section className="cart-card" id="keranjang" aria-labelledby="cart-title"><CartContents entries={entries} ready={ready} total={total} onChange={updateCart} /><p className="transport-note">Ketersediaan dan biaya akhir dikonfirmasi sebelum kunjungan.</p><button className="text-link back-to-catalog" type="button" onClick={() => { setStep("catalog"); window.scrollTo({ top: 0, behavior: "smooth" }); }}>← Kembali pilih layanan</button></section>
         <section className="visit-card" aria-labelledby="visit-title"><p className="section-kicker">Detail kunjungan</p><h2 id="visit-title">Atur waktu dan alamat.</h2>
           {!profile.signedIn && <Link className="text-link autofill-link" href="/masuk">Masuk untuk isi otomatis <Icon name="arrow" /></Link>}
           <form className="visit-form" onSubmit={submitReservation}>
@@ -139,9 +145,23 @@ export default function ReservationPage() {
             <p className="form-disclosure">Permintaan dikirim melalui WhatsApp untuk ditinjau dan dikonfirmasi.</p><button className="button button-primary submit-booking" type="submit" disabled={!entries.length}>Lanjut ke WhatsApp <Icon name="arrow" /></button><p className="form-notice" aria-live="polite">{notice}</p>
           </form>
         </section>
-      </div>
+      </div>}
     </main>
     {selected && <div className="dialog-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setSelected(null)}><dialog open className="service-detail-dialog" aria-modal="true" aria-labelledby="service-detail-title" onCancel={(event) => { event.preventDefault(); setSelected(null); }}><div className="dialog-heading"><div><p className="section-kicker">Detail layanan</p><h2 id="service-detail-title">{selected.name}</h2></div><button className="icon-button" type="button" onClick={() => setSelected(null)} aria-label="Tutup detail"><Icon name="close" /></button></div>{selected.media_type === "video" ? <video className="service-detail-media" src={selected.media_url} controls playsInline /> : <img className="service-detail-media" src={selected.media_url || "/images/homecare-visit.jpg"} alt={`Contoh layanan ${selected.name}`} />}<p className="service-detail-description">{selected.description || selected.note || "Perawatan dilakukan oleh tenaga kesehatan profesional di lokasi pilihan Anda."}</p><div className="service-detail-footer"><b>{formatRupiah(selected.price)}</b><button className="button button-primary" type="button" onClick={() => { addService(selected); setSelected(null); }}>Tambahkan ke keranjang</button></div></dialog></div>}
     <footer className="reservation-footer"><Link href="/">Kembali ke beranda</Link><span>Area layanan Jabodetabek</span></footer>
+    {step === "catalog" && itemCount > 0 && <button className="floating-cart reservation-sticky-cart" type="button" onClick={continueToVisit}><Icon name="calendar" /> {itemCount} layanan · {formatRupiah(total)} <span>Lanjut</span></button>}
+  </>;
+}
+
+function CartContents({ entries, ready, total, onChange }: { entries: CartEntry[]; ready: boolean; total: number; onChange: (items: CartItem[]) => void }) {
+  const count = entries.reduce((sum, item) => sum + item.quantity, 0);
+  return <>
+    <div className="cart-card-heading"><div><p className="section-kicker">Pilihan Anda</p><h2 id="cart-title">Keranjang <span>({count})</span></h2></div></div>
+    {!ready ? <p className="cart-loading">Memuat keranjang…</p> : entries.length === 0 ? <div className="cart-empty-inline"><Icon name="calendar" /><p>Tambahkan layanan pilihan Anda dari daftar di atas.</p></div> : <ul className="cart-list">{entries.map((item) => <li className="cart-item" key={item.id}>
+      <div className="cart-item-info"><b>{item.name}</b>{item.service.note && <small>{item.service.note}</small>}<span>{formatRupiah(item.service.price)} / layanan</span></div>
+      <div className="cart-item-controls" aria-label={`Jumlah ${item.name}`}><button type="button" onClick={() => onChange(changeCartQuantity(item.name, -1, item.id))} aria-label={`Kurangi ${item.name}`}>−</button><span aria-live="polite">{item.quantity}</span><button type="button" onClick={() => onChange(changeCartQuantity(item.name, 1, item.id))} aria-label={`Tambah ${item.name}`}>+</button><button className="remove-item" type="button" onClick={() => onChange(removeFromCart(item.name, item.id))} aria-label={`Hapus ${item.name}`}>Hapus</button></div>
+      <b className="cart-item-total">{formatRupiah(item.service.price * item.quantity)}</b>
+    </li>)}</ul>}
+    <div className="cart-subtotal"><span>Subtotal layanan</span><b>{formatRupiah(total)}</b></div>
   </>;
 }

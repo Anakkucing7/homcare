@@ -632,3 +632,142 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* A shared, calmer surface system across the public site and owner workspace. */
+:root { --pale: #f5fafd; --line: #d6e7ef; --muted: #5e768b; }
+.site-header { height: 76px; position: sticky; top: 0; backdrop-filter: blur(14px); background: #ffffffed; }
+.hero { gap: clamp(30px, 5vw, 68px); }
+.hero h1 { font-size: clamp(46px, 5.5vw, 72px); }
+.hero-visual { height: clamp(380px, 42vw, 500px); }
+.hero-copy > p { font-size: 17px; }
+.hero-eyebrow, .section-kicker { font-size: 12px; }
+.hero-proof { font-size: 12px; }
+.intro, .services-section, .testimonial-section, .faq-section { padding-block: clamp(64px, 8vw, 100px); }
+.benefit h3 { font-size: 14px; }
+.benefit p { font-size: 12px; }
+.home-category-card { min-height: 220px; border-radius: 20px; }
+.home-category-card.is-featured { min-height: 455px; }
+.home-category-copy b { font-size: 22px; }
+.home-category-copy small { font-size: 13px; }
+.testimonial-demo { border-radius: 18px 18px 5px 18px; }
+.faq-list summary { min-height: 68px; font-size: 14px; }
+.faq-list details p { font-size: 13px; line-height: 1.8; }
+.closing-cta { border-radius: 23px; background: linear-gradient(115deg, #123d68, #287fbd 72%, #48a6cf); }
+.reservation-progress { margin: 0 0 30px; padding: 0; display: flex; gap: 12px; list-style: none; }
+.reservation-progress li { min-width: 170px; padding: 12px 15px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 13px; color: #6c8294; background: var(--pale); font-size: 13px; font-weight: 700; }
+.reservation-progress li span { color: #81a0b6; font-size: 11px; }
+.reservation-progress li.is-current { border-color: #a7d7e6; color: var(--navy); background: #eef9fc; box-shadow: inset 0 0 0 1px #d3edf4; }
+.reservation-progress li.is-current span, .reservation-progress li.is-complete span { color: var(--blue); }
+.reservation-catalog { padding: 22px; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(180deg, #f9fcfe, #fff 180px); }
+.reservation-catalog-top h2 { font-family: "Bricolage Grotesque", sans-serif; font-size: 26px; }
+.reservation-catalog-top p { font-size: 13px; }
+.service-search { max-width: 560px; min-height: 48px; margin: 20px 0 17px; padding: 0 15px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; background: white; }
+.search-mark { width: 15px; height: 15px; flex: none; position: relative; border: 1.8px solid #7391a6; border-radius: 50%; }
+.search-mark::after { content: ""; width: 6px; height: 1.8px; position: absolute; right: -5px; bottom: -2px; transform: rotate(45deg); border-radius: 2px; background: #7391a6; }
+.service-search input { width: 100%; min-width: 0; height: 44px; border: 0; outline: 0; color: var(--navy); background: transparent; font-size: 14px; }
+.service-search:focus-within { border-color: #79bad3; box-shadow: 0 0 0 3px #c5ebf455; }
+.reservation-category-tabs { padding-bottom: 4px; }
+.reservation-category-tabs button { min-height: 44px; font-size: 12px; }
+.reservation-service-grid { gap: 16px; }
+.reservation-service-card { border-radius: 17px; box-shadow: 0 3px 12px #193c5810; }
+.reservation-service-media { height: clamp(155px, 17vw, 205px); }
+.reservation-service-title { font-size: 15px; }
+.reservation-service-content > p { min-height: 58px; font-size: 13px; }
+.reservation-service-bottom > b { font-size: 14px; }
+.service-add-button { min-height: 39px; padding: 0 13px; border-radius: 999px; font-size: 11px; }
+.cart-card, .visit-card { border-radius: 18px; box-shadow: 0 8px 30px #173d5b0a; }
+.reservation-review { margin-bottom: 34px; padding: 22px; border: 1px solid var(--line); border-radius: 20px; background: white; }
+.cart-review-actions { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+.cart-review-actions .transport-note { margin: 14px 0 0; }
+.cart-review-actions .button { flex: none; }
+.back-to-catalog { margin-top: 16px; }
+.reservation-sticky-cart { border: 0; font: inherit; cursor: pointer; }
+.reservation-heading > p:last-child { font-size: 14px; }
+.reservation-heading h1 { font-size: clamp(36px, 4.3vw, 50px); }
+.reservation-category-tabs button, .service-add-button, .catalog-cart-link, .cart-review-actions .button { transition: transform .18s ease, box-shadow .18s ease, background .18s ease; }
+.reservation-category-tabs button:active, .service-add-button:active, .cart-review-actions .button:active { transform: scale(.97); }
+.auth-page { padding: 30px; background: radial-gradient(ellipse at 15% 12%, #e2f5fb, transparent 42%), #f4f9fb; }
+.auth-layout { width: min(100%, 1020px); display: grid; grid-template-columns: 1fr minmax(400px, .85fr); align-items: stretch; gap: 24px; }
+.auth-visual { min-height: 650px; padding: 38px; position: relative; display: flex; align-items: end; overflow: hidden; border-radius: 25px; color: white; background: var(--navy); }
+.auth-visual > img, .auth-visual-shade { position: absolute; inset: 0; width: 100%; height: 100%; }
+.auth-visual > img { object-fit: cover; object-position: 62% center; }
+.auth-visual-shade { background: linear-gradient(180deg, #08284905 28%, #082849df 100%); }
+.auth-visual > div { position: relative; z-index: 1; max-width: 470px; }
+.auth-visual .section-kicker { color: #bcefff; }
+.auth-visual h2 { margin: 0; font: 700 clamp(29px, 3vw, 42px)/1.13 "Bricolage Grotesque", sans-serif; letter-spacing: -1.4px; }
+.auth-visual > div > p:last-child { max-width: 400px; color: #e1eff7; font-size: 14px; }
+.auth-card { width: 100%; padding: clamp(28px, 4vw, 44px); display: flex; flex-direction: column; justify-content: center; border-radius: 23px; box-shadow: 0 22px 65px #143d5b12; }
+.auth-brand { margin-bottom: 28px; }
+.auth-card h1, .account-card h1 { font-family: "Bricolage Grotesque", sans-serif; font-size: 32px; }
+.auth-description { font-size: 13px; }
+.auth-role-switch button, .auth-form label, .auth-form input, .auth-inline-link, .auth-notice, .auth-switch-copy, .auth-owner-note, .auth-guest-link { font-size: 12px; }
+.auth-form input { min-height: 48px; }
+.password-toggle { bottom: 13px; font-size: 11px; }
+.auth-guest-link { margin-top: 24px; }
+.account-card { width: min(100%, 540px); border-radius: 22px; }
+.owner-dashboard { background: #f3f8fb; }
+.owner-sidebar { padding: 27px 17px; }
+.owner-sidebar > a:not(.brand) { min-height: 45px; font-size: 13px; }
+.owner-main { padding-top: 42px; }
+.owner-topbar h1 { font-size: clamp(28px, 3vw, 36px); }
+.owner-stats article { min-height: 130px; border-radius: 16px; box-shadow: 0 6px 20px #173d5b08; }
+.owner-stats span, .owner-stats small { font-size: 12px; }
+.owner-panel { padding: 25px; border-radius: 17px; box-shadow: 0 5px 20px #173d5b08; scroll-margin-top: 96px; }
+.owner-dashboard label, .owner-dashboard input:not([type="checkbox"]), .owner-dashboard select, .owner-dashboard textarea { font-size: 12px; }
+.owner-button { min-height: 39px; padding-inline: 13px; font-size: 11px; }
+.owner-row-actions span, .owner-helper { font-size: 11px; }
+.owner-service-summary b { font-size: 14px; }
+.owner-service-summary span, .owner-service-summary small { font-size: 12px; }
+.owner-category-row { grid-template-columns: minmax(130px, 1fr) minmax(160px, 1.3fr) minmax(170px, 1.5fr) 90px 125px auto; }
+.owner-category-row .owner-checkbox { align-self: center; }
+@media (max-width: 1000px) {
+  .owner-category-row { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .site-header { height: 66px; }
+  .hero { gap: 18px; padding-top: 18px; }
+  .hero-visual { height: clamp(200px, 58vw, 285px); margin-inline: 7px; }
+  .hero h1 { font-size: clamp(37px, 9.5vw, 49px); }
+  .hero-copy > p { margin-block: 12px 16px; font-size: 14px; }
+  .hero-proof { margin-top: 16px; font-size: 11px; }
+  .intro-body { gap: 20px; }
+  .benefit h3 { font-size: 12px; }
+  .benefit p { font-size: 11px; }
+  .reservation-page { width: calc(100% - 32px); }
+  .reservation-progress { gap: 8px; }
+  .reservation-progress li { min-width: 0; flex: 1; padding: 10px; font-size: 11px; }
+  .reservation-catalog { padding: 14px; border-radius: 16px; }
+  .reservation-catalog-top h2 { font-size: 21px; }
+  .reservation-catalog-top p { max-width: none; font-size: 12px; }
+  .service-search { min-height: 46px; margin-top: 16px; }
+  .service-search input { font-size: 13px; }
+  .reservation-category-tabs button { min-height: 42px; font-size: 11px; }
+  .reservation-service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .reservation-service-media { height: clamp(115px, 32vw, 170px); }
+  .reservation-service-title { font-size: 13px; }
+  .reservation-service-content > p { min-height: 0; font-size: 11px; }
+  .reservation-service-bottom { align-items: stretch; }
+  .service-add-button { width: 100%; font-size: 10px; }
+  .reservation-review { padding: 16px; }
+  .cart-review-actions { align-items: stretch; flex-direction: column; }
+  .cart-review-actions .button { width: 100%; }
+  .auth-page { padding: 16px; }
+  .auth-layout { max-width: 480px; grid-template-columns: 1fr; gap: 12px; }
+  .auth-visual { min-height: 190px; padding: 21px; border-radius: 18px; }
+  .auth-visual h2 { max-width: 390px; font-size: 25px; }
+  .auth-visual > div > p:last-child { margin: 6px 0 0; font-size: 12px; }
+  .auth-card { padding: 24px 21px; border-radius: 18px; }
+  .auth-brand { margin-bottom: 20px; }
+  .auth-card h1, .account-card h1 { font-size: 28px; }
+  .auth-description { margin-bottom: 14px; }
+  .owner-sidebar > a:not(.brand) { font-size: 11px; }
+  .owner-main { padding: 24px 16px 50px; }
+  .owner-stats span, .owner-stats small { font-size: 10px; }
+  .owner-panel { padding: 17px 14px; }
+  .owner-category-row { grid-template-columns: 1fr; }
+  .owner-category-row .owner-checkbox { justify-self: start; }
+}
+@media (max-width: 380px) {
+  .reservation-service-grid { grid-template-columns: 1fr; }
+  .reservation-service-media { height: 175px; }
+}
