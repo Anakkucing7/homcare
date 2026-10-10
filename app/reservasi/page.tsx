@@ -74,8 +74,8 @@ export default function ReservationPage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data } = await supabase.from("profiles").select("full_name, phone, address").eq("id", user.id).maybeSingle();
-      if (active) setProfile((current) => ({ full_name: current.full_name || data?.full_name || "", phone: current.phone || data?.phone || "", address: current.address || data?.address || "", signedIn: true }));
+      const { data } = await supabase.from("profiles").select("full_name, phone").eq("id", user.id).maybeSingle();
+      if (active) setProfile((current) => ({ full_name: current.full_name || data?.full_name || "", phone: current.phone || data?.phone || "", address: current.address || String(user.user_metadata?.address ?? ""), signedIn: true }));
     })();
     return () => { active = false; };
   }, []);

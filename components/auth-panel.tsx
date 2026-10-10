@@ -67,11 +67,7 @@ export function AuthPanel({ configured }: { configured: boolean }) {
       return setNotice("Profil belum siap. Pastikan supabase/schema.sql sudah dijalankan.");
     }
     setBusy(false);
-    if (profile.role === "owner") router.replace("/owner");
-    else {
-      const { data: patientProfile, error: addressError } = await supabase.from("profiles").select("address").eq("id", result.user.id).maybeSingle();
-      router.replace(addressError || !patientProfile?.address?.trim() ? "/akun" : "/reservasi");
-    }
+    router.replace(profile.role === "owner" ? "/owner" : result.user.user_metadata?.address?.trim() ? "/reservasi" : "/akun");
     router.refresh();
   }
 
