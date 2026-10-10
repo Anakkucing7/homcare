@@ -10,6 +10,7 @@ export function AuthPanel({ configured }: { configured: boolean }) {
   const router = useRouter();
   const [role, setRole] = useState<"user" | "owner">("user");
   const [registering, setRegistering] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
 
@@ -46,6 +47,14 @@ export function AuthPanel({ configured }: { configured: boolean }) {
       return;
     }
 
+    if (resetting) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?next=/atur-kata-sandi`,
+      });
+      setBusy(false);
+      return setNotice(error ? error.message : "Tautan untuk membuat kata sandi baru telah dikirim. Periksa email Anda.");
+    }
+
     const { data: result, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) { setBusy(false); return setNotice("Email atau kata sandi tidak cocok."); }
     const { data: profile, error: profileError } = await supabase.from("profiles").select("role").eq("id", result.user.id).maybeSingle();
@@ -68,23 +77,25 @@ export function AuthPanel({ configured }: { configured: boolean }) {
     <section className="auth-card" aria-labelledby="auth-title">
       <Link className="auth-brand" href="/"><span className="brand-mark"><Icon name="heart" /></span><span className="brand-name">Layanan <b>Homecare</b></span></Link>
       <p className="section-kicker">Akun Homecare</p>
-      <h1 id="auth-title">{registering ? "Buat akun pasien." : role === "owner" ? "Masuk sebagai owner." : "Selamat datang kembali."}</h1>
-      <p className="auth-description">{registering ? "Simpan data kontak Anda untuk reservasi berikutnya." : role === "owner" ? "Masuk dengan akun owner yang telah diaktifkan." : "Masuk untuk mengisi data reservasi secara otomatis."}</p>
-      <div className="auth-role-switch" aria-label="Jenis akun">
+      <h1 id="auth-title">{resetting ? "Atur ulang kata sandi." : registering ? "Buat akun pasien." : role === "owner" ? "Masuk sebagai owner." : "Selamat datang kembali."}</h1>
+      <p className="auth-description">{resetting ? "Kami akan mengirim tautan aman ke email Anda untuk membuat kata sandi baru." : registering ? "Simpan data kontak Anda untuk reservasi berikutnya." : role === "owner" ? "Masuk dengan akun owner yang telah diaktifkan." : "Masuk untuk mengisi data reservasi secara otomatis."}</p>
+      {!resetting && <div className="auth-role-switch" aria-label="Jenis akun">
         <button type="button" className={role === "user" ? "active" : ""} aria-pressed={role === "user"} onClick={() => { setRole("user"); setRegistering(false); setNotice(""); }}>Pasien</button>
         <button type="button" className={role === "owner" ? "active" : ""} aria-pressed={role === "owner"} onClick={() => { setRole("owner"); setRegistering(false); setNotice(""); }}>Owner</button>
-      </div>
+      </div>}
       {!configured ? <div className="auth-setup-note"><b>Project Supabase belum tersambung.</b><span>Buat project, isi URL dan publishable key di file lokal <code>.env.local</code>, lalu jalankan langkah SQL pada panduan setup.</span></div> : <form className="auth-form" onSubmit={submit}>
         {registering && role === "user" && <label>Nama lengkap<input name="name" autoComplete="name" required maxLength={100} placeholder="Nama Anda" /></label>}
         {registering && role === "user" && <label>Nomor WhatsApp<input name="phone" type="tel" inputMode="tel" autoComplete="tel" required placeholder="0812 3456 7890" /></label>}
         <label>Email<input name="email" type="email" autoComplete="email" required placeholder="nama@email.com" /></label>
-        <label>Kata sandi<input name="password" type="password" autoComplete={registering ? "new-password" : "current-password"} required minLength={8} placeholder="Minimal 8 karakter" /></label>
+        {!resetting && <label>Kata sandi<input name="password" type="password" autoComplete={registering ? "new-password" : "current-password"} required minLength={8} placeholder="Minimal 8 karakter" /></label>}
+        {!registering && !resetting && <button className="auth-inline-link" type="button" onClick={() => { setResetting(true); setNotice(""); }}>Lupa kata sandi?</button>}
         {notice && <p className="auth-notice" role="status">{notice}</p>}
-        <button className="button button-primary auth-submit" disabled={busy} type="submit">{busy ? "Memproses…" : registering ? "Buat akun" : "Masuk"}<Icon name="arrow" /></button>
+        <button className="button button-primary auth-submit" disabled={busy} type="submit">{busy ? "Memproses…" : resetting ? "Kirim tautan reset" : registering ? "Buat akun" : "Masuk"}<Icon name="arrow" /></button>
       </form>}
-      {configured && role === "user" && <p className="auth-switch-copy">{registering ? "Sudah punya akun?" : "Belum punya akun?"} <button type="button" onClick={() => { setRegistering(!registering); setNotice(""); }}>{registering ? "Masuk" : "Daftar gratis"}</button></p>}
-      {role === "owner" && <p className="auth-owner-note">Akses owner hanya diberikan oleh pemilik project.</p>}
-      <Link className="auth-guest-link" href="/reservasi">Lanjut reservasi tanpa akun <Icon name="arrow" /></Link>
+      {resetting && <p className="auth-switch-copy"><button type="button" onClick={() => { setResetting(false); setNotice(""); }}>Kembali ke masuk</button></p>}
+      {configured && !resetting && role === "user" && <p className="auth-switch-copy">{registering ? "Sudah punya akun?" : "Belum punya akun?"} <button type="button" onClick={() => { setRegistering(!registering); setNotice(""); }}>{registering ? "Masuk" : "Daftar gratis"}</button></p>}
+      {!resetting && role === "owner" && <p className="auth-owner-note">Akses owner hanya diberikan oleh pemilik project.</p>}
+      {!resetting && <Link className="auth-guest-link" href="/reservasi">Lanjut reservasi tanpa akun <Icon name="arrow" /></Link>}
     </section>
   </main>;
 }
