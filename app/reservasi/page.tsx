@@ -44,10 +44,10 @@ export default function ReservationPage() {
         supabase.from("services").select("id,category_id,name,description,note,price,media_url,media_type").eq("active", true).order("sort_order"),
       ]);
       if (!active) return;
-      const availableCategories = categoryResult.error ? fallbackCategories : categoryResult.data ?? [];
+      const availableCategories = categoryResult.error || !categoryResult.data?.length ? fallbackCategories : categoryResult.data;
       setCategories(availableCategories);
-      if (serviceResult.error) setServices(fallbackServices);
-      else setServices((serviceResult.data ?? []) as Service[]);
+      if (serviceResult.error || !serviceResult.data?.length) setServices(fallbackServices);
+      else setServices(serviceResult.data as Service[]);
       const requestedCategory = new URLSearchParams(window.location.search).get("kategori");
       setCategoryId(availableCategories.some((category) => category.id === requestedCategory) ? requestedCategory! : availableCategories[0]?.id ?? "");
     })();

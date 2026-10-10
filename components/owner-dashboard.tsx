@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { createClient } from "../lib/supabase/client";
+import { categories as sampleCategories } from "../lib/services";
 import { OwnerProfileForm } from "./owner-profile-form";
 import { SignOutButton } from "./sign-out-button";
 
@@ -41,6 +42,25 @@ export function OwnerDashboard({ initialName }: { initialName: string }) {
   }, [supabase]);
 
   useEffect(() => { void reload(); }, [reload]);
+
+  async function addSampleCatalog() {
+    setBusy(true); setError(""); setNotice("");
+    try {
+      const missing = sampleCategories.filter((sample) => !categories.some((category) => category.id === sample.id || category.name === sample.name));
+      if (missing.length) {
+        const result = await supabase.from("service_categories").insert(missing.map((category, index) => ({ id: category.id, name: category.name, description: category.summary, image_url: "/images/homecare-visit.jpg", active: true, sort_order: categories.length + index + 1 })));
+        if (result.error) throw result.error;
+      }
+      const result = await supabase.from("services").insert(sampleCategories.flatMap((category) => {
+        const categoryId = categories.find((existing) => existing.id === category.id || existing.name === category.name)?.id ?? category.id;
+        return category.services.map((service, index) => ({ category_id: categoryId, name: service.name, description: service.note ?? category.summary, note: service.note ?? "", price: service.price, media_url: "/images/homecare-visit.jpg", media_type: "image" as const, active: true, sort_order: index + 1 }));
+      }));
+      if (result.error) throw result.error;
+      setNotice("Katalog contoh berhasil ditambahkan. Kini layanan dan harganya bisa diedit di sini.");
+      await reload();
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Katalog contoh gagal ditambahkan."); }
+    setBusy(false);
+  }
 
   async function run(action: () => PromiseLike<{ error: { message: string } | null }>, success: string) {
     setBusy(true); setError(""); setNotice("");
@@ -123,7 +143,7 @@ export function OwnerDashboard({ initialName }: { initialName: string }) {
         <form className="owner-category-create" onSubmit={(event) => saveCategory(event)}><h3>Tambah kategori</h3><label>Nama<input name="name" required placeholder="Contoh: Perawatan lansia" /></label><label>Deskripsi<input name="description" placeholder="Ringkasan kategori" /></label><label>URL gambar<input name="image_url" placeholder="https://… atau pakai gambar contoh" /></label><button className="owner-button owner-button-primary" disabled={busy}>Tambah kategori</button></form>
       </section>
 
-      <section id="kelola-layanan" className="owner-panel"><div className="owner-panel-title"><div><p className="section-kicker">Harga, informasi & media</p><h2>Daftar layanan</h2></div></div>
+      <section id="kelola-layanan" className="owner-panel"><div className="owner-panel-title"><div><p className="section-kicker">Harga, informasi & media</p><h2>Daftar layanan</h2></div>{services.length === 0 && <button className="owner-button owner-button-primary" type="button" disabled={busy} onClick={() => void addSampleCatalog()}>Tambahkan katalog contoh</button>}</div>
         <div className="owner-service-list">{services.map((service) => <article className="owner-service-row" key={service.id}><div className="owner-media-thumb">{service.media_type === "video" ? <video src={service.media_url} muted playsInline /> : <img src={service.media_url} alt="" />}</div><div className="owner-service-summary"><b>{service.name}</b><span>{categories.find((item) => item.id === service.category_id)?.name} · Rp {service.price.toLocaleString("id-ID")}</span><small>{service.active ? "Aktif" : "Disembunyikan"}</small></div><button className="owner-button" type="button" onClick={() => editService(service)}>Edit</button><button className="owner-button" type="button" disabled={busy} onClick={() => void run(() => supabase.from("services").update({ active: !service.active }).eq("id", service.id), service.active ? "Layanan disembunyikan." : "Layanan ditampilkan.")}>{service.active ? "Sembunyikan" : "Tampilkan"}</button><button className="owner-button owner-button-danger" type="button" disabled={busy} onClick={() => { if (confirm(`Hapus layanan ${service.name}?`)) void run(() => supabase.from("services").delete().eq("id", service.id), "Layanan dihapus."); }}>Hapus</button></article>)}</div>
         <form className="owner-editor" onSubmit={saveService}><h3>{editingService ? "Edit layanan" : "Tambah layanan"}</h3><div className="owner-form-grid"><label>Nama layanan<input name="name" required value={serviceDraft.name} onChange={(event) => setServiceDraft({ ...serviceDraft, name: event.target.value })} /></label><label>Kategori<select name="category_id" required value={serviceDraft.category_id || categories[0]?.id || ""} onChange={(event) => setServiceDraft({ ...serviceDraft, category_id: event.target.value })}>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><label>Harga dalam Rupiah<input name="price" type="number" min="0" step="1" required value={serviceDraft.price} onChange={(event) => setServiceDraft({ ...serviceDraft, price: Number(event.target.value) })} /></label><label>Catatan singkat<input name="note" value={serviceDraft.note} onChange={(event) => setServiceDraft({ ...serviceDraft, note: event.target.value })} /></label><label className="owner-span-two">Deskripsi<textarea name="description" rows={3} value={serviceDraft.description} onChange={(event) => setServiceDraft({ ...serviceDraft, description: event.target.value })} /></label><label className="owner-span-two">URL gambar atau video<input name="media_url" value={serviceDraft.media_url} onChange={(event) => setServiceDraft({ ...serviceDraft, media_url: event.target.value, media_type: /\.(mp4|webm|mov)(\?|$)/i.test(event.target.value) ? "video" : "image" })} /></label><label className="owner-span-two">Atau unggah gambar / video<input name="media" type="file" accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm,video/quicktime" /></label></div><p className="owner-helper">Media katalog dapat dilihat publik. Pastikan foto/video memiliki izin dan tidak menampilkan data kesehatan pribadi.</p><label className="owner-checkbox"><input name="active" type="checkbox" checked={serviceDraft.active} onChange={(event) => setServiceDraft({ ...serviceDraft, active: event.target.checked })} /> Tampilkan di katalog</label><div className="owner-editor-actions"><button className="owner-button owner-button-primary" disabled={busy || !categories.length}>{busy ? "Menyimpan…" : editingService ? "Simpan perubahan" : "Tambah layanan"}</button>{editingService && <button className="owner-button" type="button" onClick={() => { setEditingService(""); setServiceDraft({ ...emptyService, category_id: categories[0]?.id ?? "" }); }}>Batal edit</button>}</div></form>
       </section>
