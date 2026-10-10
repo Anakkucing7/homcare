@@ -4,25 +4,14 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "../components/icons";
-import { categories, contact, formatRupiah } from "../lib/services";
-import { addToCart, getCart } from "../lib/cart";
+import { contact } from "../lib/services";
+import { createClient } from "../lib/supabase/client";
+import { isSupabaseConfigured } from "../lib/supabase/config";
 
 export default function Home() {
-  const [categoryId, setCategoryId] = useState(categories[0].id);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
-  const [addedService, setAddedService] = useState("");
-  const category = categories.find((item) => item.id === categoryId) ?? categories[0];
-  useEffect(() => { setCartCount(getCart().reduce((count, item) => count + item.quantity, 0)); }, []);
 
-  function addService(service: string) {
-    addToCart(service);
-    setCartCount(getCart().reduce((count, item) => count + item.quantity, 0));
-    setAddedService(service);
-    window.setTimeout(() => setAddedService(""), 1400);
-  }
-
-  function goToBooking() {
+function goToBooking() {
     setMenuOpen(false);
   }
 
@@ -43,7 +32,7 @@ export default function Home() {
           <a href="#testimoni" onClick={() => setMenuOpen(false)}>Testimoni</a>
           <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>
           <Link href="/masuk" onClick={() => setMenuOpen(false)}>Masuk</Link>
-          <Link className="button button-primary nav-cta" href="/reservasi" onClick={goToBooking}>Keranjang{cartCount > 0 && <span className="cart-count" aria-label={`${cartCount} item`}>{cartCount}</span>} <Icon name="arrow" /></Link>
+          <Link className="button button-primary nav-cta" href="/reservasi" onClick={goToBooking}>Reservasi <Icon name="arrow" /></Link>
         </nav>
       </header>
 
@@ -85,22 +74,9 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="layanan" className="services-section section-wrap">
-          <div className="section-heading">
-            <div><p className="section-kicker">Pilihan perawatan</p><h2>Layanan dan harga.</h2><p className="section-description">Pilih layanan untuk melihat rincian harga sebelum mengajukan reservasi.</p></div>
-            <p className="price-note">Harga dalam Rupiah<br />Biaya transport dapat berlaku untuk jarak lebih dari 5 km.</p>
-          </div>
-          <div className="catalog-layout">
-            <div className="category-list" aria-label="Kategori layanan">
-              {categories.map((item, index) => <button key={item.id} className={`category-tab${item.id === categoryId ? " active" : ""}`} aria-pressed={item.id === categoryId} onClick={() => setCategoryId(item.id)}><span className="category-number">0{index + 1}</span><span>{item.name}</span><Icon name="arrow" /></button>)}
-            </div>
-            <div className="service-panel" id="service-panel">
-              <div className="service-panel-heading"><div><h3>{category.name}</h3><p>{category.summary}</p></div><span className="service-count">{category.services.length} pilihan</span></div>
-              <ul className="service-list">{category.services.map((service) => <li className="service-row" key={service.name}><div className="service-name"><span>{service.name}</span>{service.note && <small>{service.note}</small>}</div><div className="service-price">{formatRupiah(service.price)}<button onClick={() => addService(service.name)} aria-label={`Tambahkan ${service.name} ke keranjang`}>{addedService === service.name ? "Ditambahkan ✓" : "Tambah +"} <Icon name="arrow" /></button></div></li>)}</ul>
-              {category.id === "suntik" && <p className="included-note"><b>Layanan suntik dan infus termasuk:</b> infuset, spuit, abbocath, torniket, alcohol swab, micropore, plester, nierbekken, dan tiang infus portable.</p>}
-            </div>
-          </div>
-          <p className="catalog-footnote">Biaya akhir dan ketersediaan layanan akan dikonfirmasi sebelum kunjungan.</p>
+        <section id="layanan" className="service-discovery section-wrap">
+          <div className="service-discovery-copy"><p className="section-kicker">Pilih sesuai kebutuhan</p><h2>Layanan perawatan, dalam satu tempat.</h2><p>Lihat foto, rincian, dan harga setiap layanan. Tambahkan pilihan ke keranjang sebelum mengatur jadwal kunjungan.</p><Link className="button button-primary" href="/reservasi">Jelajahi layanan <Icon name="arrow" /></Link></div>
+          <div className="service-discovery-visual"><Image src="/images/homecare-visit.jpg" alt="Perawat mendampingi pasien di rumah" fill sizes="(max-width: 720px) 90vw, 42vw" /><span><Icon name="check" /> Pilih layanan, lalu atur kunjungan</span></div>
         </section>
 
         <section id="cara-reservasi" className="booking-steps-section">
@@ -128,25 +104,38 @@ export default function Home() {
       </main>
 
       <footer className="site-footer"><div className="footer-main section-wrap"><a className="brand footer-brand" href="#beranda"><span className="brand-mark"><Icon name="heart" /></span><span className="brand-name">Layanan <b>Homecare</b></span></a><p>Perawatan kesehatan di rumah, di kantor, dan di lokasi Anda.</p><a className="footer-phone" href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noreferrer"><Icon name="phone" />{contact.phoneDisplay}</a></div><div className="footer-bottom section-wrap"><span>© {new Date().getFullYear()} Layanan Homecare</span><span>Area layanan: Jabodetabek</span><a href="#faq">Pertanyaan umum</a></div></footer>
-      {cartCount > 0 && <Link className="floating-cart" href="/reservasi"><Icon name="calendar" />Lihat keranjang <span>{cartCount}</span><Icon name="arrow" /></Link>}
     </>
   );
 }
 
 function TestimonialPreview() {
-  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState<{ id: string; display_name: string; service_name: string; description: string; media_url: string; media_type: string }[]>([]);
+  const [selected, setSelected] = useState<{ id: string; display_name: string; service_name: string; description: string; media_url: string; media_type: string } | null>(null);
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    let active = true;
+    void createClient().from("testimonials").select("id,display_name,service_name,description,media_url,media_type").eq("published", true).order("created_at", { ascending: false }).then(({ data }) => { if (active && data) setItems(data); });
+    return () => { active = false; };
+  }, []);
+  useEffect(() => {
+    if (!selected) return;
+    function closeOnEscape(event: KeyboardEvent) { if (event.key === "Escape") setSelected(null); }
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [selected]);
+  const cards = items.length ? items : [{ id: "demo", display_name: "Contoh tampilan", service_name: "Media testimoni", description: "Owner dapat menambahkan foto atau video, nama tampilan, layanan, dan cerita pelanggan di dashboard. Publikasikan setelah mendapat izin.", media_url: "/images/homecare-visit.jpg", media_type: "image" }];
   return <>
-    <button className="testimonial-demo" type="button" onClick={() => setOpen(true)} aria-haspopup="dialog">
-      <div className="demo-label"><span></span>Pratinjau · media testimoni belum tersedia</div>
-      <span className="testimonial-media"><Image src="/images/homecare-visit.jpg" alt="Ilustrasi kunjungan perawat ke rumah" fill sizes="(max-width: 720px) 88vw, 40vw" /></span>
-      <span className="testimonial-open">Lihat detail <Icon name="arrow" /></span>
-    </button>
-    {open && <div className="dialog-backdrop testimonial-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setOpen(false)}>
-      <dialog open className="testimonial-dialog" aria-modal="true" aria-labelledby="testimonial-detail-title" onCancel={(event) => { event.preventDefault(); setOpen(false); }}>
-        <div className="dialog-heading"><div><p className="section-kicker">Contoh tampilan</p><h2 id="testimonial-detail-title">Cerita kunjungan</h2></div><button className="icon-button" type="button" onClick={() => setOpen(false)} aria-label="Tutup detail testimoni"><Icon name="close" /></button></div>
-        <div className="testimonial-detail-media"><Image src="/images/homecare-visit.jpg" alt="Ilustrasi perawat mendampingi pasien di rumah" fill sizes="(max-width: 720px) 90vw, 520px" /></div>
-        <p className="demo-label"><span></span>Foto ilustrasi · bukan foto pelanggan</p>
-        <p className="testimonial-detail-copy">Detail testimoni dapat berisi foto atau video, jenis layanan, dan cerita pelanggan setelah materi serta izin publikasinya tersedia.</p>
+    <div className="testimonial-grid">{cards.map((item) => <button className="testimonial-demo" type="button" key={item.id} onClick={() => setSelected(item)} aria-haspopup="dialog">
+      <span className="demo-label"><span></span>{item.id === "demo" ? "Contoh tampilan, ganti dari dashboard" : item.service_name || "Cerita pelanggan"}</span>
+      <span className="testimonial-media">{item.media_type === "video" ? <video src={item.media_url} muted playsInline preload="metadata" /> : <img src={item.media_url} alt={`Media cerita ${item.display_name}`} loading="lazy" />}</span>
+      <span className="testimonial-card-name">{item.display_name}</span><span className="testimonial-open">Lihat cerita <Icon name="arrow" /></span>
+    </button>)}</div>
+    {selected && <div className="dialog-backdrop testimonial-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setSelected(null)}>
+      <dialog open className="testimonial-dialog" aria-modal="true" aria-labelledby="testimonial-detail-title" onCancel={(event) => { event.preventDefault(); setSelected(null); }}>
+        <div className="dialog-heading"><div><p className="section-kicker">{selected.service_name || "Cerita pelanggan"}</p><h2 id="testimonial-detail-title">{selected.display_name}</h2></div><button className="icon-button" type="button" onClick={() => setSelected(null)} aria-label="Tutup detail testimoni"><Icon name="close" /></button></div>
+        <div className="testimonial-detail-media">{selected.media_type === "video" ? <video src={selected.media_url} controls playsInline /> : <img src={selected.media_url} alt={`Media cerita ${selected.display_name}`} />}</div>
+        {selected.id === "demo" && <p className="demo-label"><span></span>Foto ilustrasi, bukan foto pelanggan</p>}
+        <p className="testimonial-detail-copy">{selected.description}</p>
       </dialog>
     </div>}
   </>;

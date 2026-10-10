@@ -12,6 +12,7 @@ export function AuthPanel({ configured }: { configured: boolean }) {
   const [registering, setRegistering] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [notice, setNotice] = useState("");
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -90,7 +91,7 @@ export function AuthPanel({ configured }: { configured: boolean }) {
         {registering && role === "user" && <label>Nama lengkap<input name="name" autoComplete="name" required maxLength={100} placeholder="Nama Anda" /></label>}
         {registering && role === "user" && <label>Nomor WhatsApp<input name="phone" type="tel" inputMode="tel" autoComplete="tel" required placeholder="0812 3456 7890" /></label>}
         <label>Email<input name="email" type="email" autoComplete="email" required placeholder="nama@email.com" /></label>
-        {!resetting && <label>Kata sandi<input name="password" type="password" autoComplete={registering ? "new-password" : "current-password"} required minLength={8} placeholder="Minimal 8 karakter" /></label>}
+        {!resetting && <label className="password-field">Kata sandi<input name="password" type={showPassword ? "text" : "password"} autoComplete={registering ? "new-password" : "current-password"} required minLength={8} placeholder="Minimal 8 karakter" /><button type="button" className="password-toggle" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"} aria-pressed={showPassword}>{showPassword ? "Sembunyikan" : "Tampilkan"}</button></label>}
         {!registering && !resetting && <button className="auth-inline-link" type="button" onClick={() => { setResetting(true); setNotice(""); }}>Lupa kata sandi?</button>}
         {notice && <p className="auth-notice" role="status">{notice}</p>}
         <button className="button button-primary auth-submit" disabled={busy} type="submit">{busy ? "Memproses…" : resetting ? "Kirim tautan reset" : registering ? "Buat akun" : "Masuk"}<Icon name="arrow" /></button>
