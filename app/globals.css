@@ -636,12 +636,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 /* A shared, calmer surface system across the public site and owner workspace. */
 :root { --pale: #f5fafd; --line: #d6e7ef; --muted: #5e768b; }
 .site-header { height: 76px; position: sticky; top: 0; backdrop-filter: blur(14px); background: #ffffffed; }
-.hero { gap: clamp(30px, 5vw, 68px); }
-.hero h1 { font-size: clamp(46px, 5.5vw, 72px); }
-.hero-visual { height: clamp(380px, 42vw, 500px); }
-.hero-copy > p { font-size: 17px; }
-.hero-eyebrow, .section-kicker { font-size: 12px; }
-.hero-proof { font-size: 12px; }
+.main-nav > a.button-primary { color: var(--white); }
+.hero { gap: clamp(34px, 4vw, 54px); min-height: 0; padding-block: 40px 54px; }
+.hero h1 { max-width: 560px; font-size: clamp(42px, 3.8vw, 56px); line-height: 1.08; letter-spacing: -2.2px; }
+.hero-visual { height: clamp(360px, 32vw, 420px); }
+.hero-copy > p { max-width: 470px; margin-block: 20px 23px; font-size: 15px; }
+.hero-eyebrow { margin-bottom: 14px; font-size: 11px; }
+.section-kicker { font-size: 12px; }
+.hero-proof { margin-top: 23px; font-size: 11px; }
 .intro, .services-section, .testimonial-section, .faq-section { padding-block: clamp(64px, 8vw, 100px); }
 .benefit h3 { font-size: 14px; }
 .benefit p { font-size: 12px; }
@@ -720,6 +722,22 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .owner-service-summary span, .owner-service-summary small { font-size: 12px; }
 .owner-category-row { grid-template-columns: minmax(130px, 1fr) minmax(160px, 1.3fr) minmax(170px, 1.5fr) 90px 125px auto; }
 .owner-category-row .owner-checkbox { align-self: center; }
+@media (max-width: 1000px) {
+  .hero { gap: 28px; padding-block: 34px 46px; }
+  .hero h1 { font-size: clamp(40px, 4.8vw, 48px); letter-spacing: -1.8px; }
+  .hero-visual { height: clamp(340px, 40vw, 390px); }
+}
+@media (max-width: 720px) {
+  .main-nav > a.button-primary { color: var(--navy); }
+  .hero { gap: 16px; padding-block: 20px 38px; }
+  .hero h1 { font-size: clamp(34px, 8.7vw, 38px); line-height: 1.1; letter-spacing: -1.8px; }
+  .hero-visual { height: clamp(185px, 54vw, 230px); }
+  .hero-copy > p { margin-block: 11px 15px; font-size: 14px; }
+  .hero-proof { margin-top: 15px; font-size: 10px; }
+}
+@media (max-width: 380px) {
+  .hero h1 { font-size: 34px; }
+}
 @media (max-width: 1000px) {
   .owner-category-row { grid-template-columns: 1fr 1fr; }
 }
