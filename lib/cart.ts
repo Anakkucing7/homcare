@@ -21,6 +21,11 @@ function saveCart(cart: CartItem[]) {
   window.sessionStorage.setItem(storageKey, JSON.stringify(cart));
 }
 
+export function clearCart() {
+  saveCart([]);
+  return [];
+}
+
 export function addToCart(name: string, id?: string) {
   if (!id && !services.has(name)) return;
   const cart = getCart();

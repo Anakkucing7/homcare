@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "../../components/icons";
-import { changeCartQuantity, getCart, removeFromCart, addToCart, type CartItem } from "../../lib/cart";
+import { changeCartQuantity, getCart, removeFromCart, addToCart, clearCart, type CartItem } from "../../lib/cart";
 import { categories as defaultCategories, contact, formatRupiah } from "../../lib/services";
 import { createClient } from "../../lib/supabase/client";
 import { isSupabaseConfigured } from "../../lib/supabase/config";
@@ -134,9 +134,9 @@ export default function ReservationPage() {
           <div className="reservation-service-content"><button type="button" className="reservation-service-title" onClick={() => setSelected(service)}>{service.name}</button><p>{service.description || service.note || "Perawatan dilakukan oleh tenaga kesehatan profesional."}</p><div className="reservation-service-bottom"><b>{formatRupiah(service.price)}</b><button className="service-add-button" type="button" onClick={() => addService(service)}>{added === service.id ? "Ditambahkan ✓" : "Tambah ke keranjang"}</button></div></div>
         </article>)}</div>
         {!visibleServices.length && <p className="catalog-empty">Tidak ada layanan yang cocok. Coba kata kunci atau kategori lain.</p>}
-      </section><section className="cart-card reservation-review" id="keranjang" aria-labelledby="cart-title"><CartContents entries={entries} ready={ready} total={total} onChange={updateCart} /><div className="cart-review-actions"><p className="transport-note">Ketersediaan dan biaya akhir dikonfirmasi sebelum kunjungan.</p><button className="button button-primary" type="button" onClick={continueToVisit} disabled={!entries.length}>Lanjut ke jadwal <Icon name="arrow" /></button></div></section></>}
+      </section><section className="cart-card reservation-review" id="keranjang" aria-labelledby="cart-title"><CartContents entries={entries} ready={ready} total={total} onChange={updateCart} onClear={() => updateCart(clearCart())} /><div className="cart-review-actions"><p className="transport-note">Ketersediaan dan biaya akhir dikonfirmasi sebelum kunjungan.</p><button className="button button-primary" type="button" onClick={continueToVisit} disabled={!entries.length}>Lanjut ke jadwal <Icon name="arrow" /></button></div></section></>}
       {step === "visit" && <div className="reservation-layout" id="reservasi-lanjutan">
-        <section className="cart-card" id="keranjang" aria-labelledby="cart-title"><CartContents entries={entries} ready={ready} total={total} onChange={updateCart} /><p className="transport-note">Ketersediaan dan biaya akhir dikonfirmasi sebelum kunjungan.</p><button className="text-link back-to-catalog" type="button" onClick={() => { setStep("catalog"); window.scrollTo({ top: 0, behavior: "smooth" }); }}>← Kembali pilih layanan</button></section>
+        <section className="cart-card" id="keranjang" aria-labelledby="cart-title"><CartContents entries={entries} ready={ready} total={total} onChange={updateCart} onClear={() => updateCart(clearCart())} /><p className="transport-note">Ketersediaan dan biaya akhir dikonfirmasi sebelum kunjungan.</p><button className="text-link back-to-catalog" type="button" onClick={() => { setStep("catalog"); window.scrollTo({ top: 0, behavior: "smooth" }); }}>← Kembali pilih layanan</button></section>
         <section className="visit-card" aria-labelledby="visit-title"><p className="section-kicker">Detail kunjungan</p><h2 id="visit-title">Atur waktu dan alamat.</h2>
           {!profile.signedIn && <Link className="text-link autofill-link" href="/masuk">Masuk untuk isi otomatis <Icon name="arrow" /></Link>}
           <form className="visit-form" onSubmit={submitReservation}>
@@ -155,10 +155,10 @@ export default function ReservationPage() {
   </>;
 }
 
-function CartContents({ entries, ready, total, onChange }: { entries: CartEntry[]; ready: boolean; total: number; onChange: (items: CartItem[]) => void }) {
+function CartContents({ entries, ready, total, onChange, onClear }: { entries: CartEntry[]; ready: boolean; total: number; onChange: (items: CartItem[]) => void; onClear: () => void }) {
   const count = entries.reduce((sum, item) => sum + item.quantity, 0);
   return <>
-    <div className="cart-card-heading"><div><p className="section-kicker">Pilihan Anda</p><h2 id="cart-title">Keranjang <span>({count})</span></h2></div></div>
+    <div className="cart-card-heading"><div><p className="section-kicker">Pilihan Anda</p><h2 id="cart-title">Keranjang <span>({count})</span></h2></div>{count > 0 && <button className="clear-cart-button" type="button" onClick={onClear}>Kosongkan keranjang</button>}</div>
     {!ready ? <p className="cart-loading">Memuat keranjang…</p> : entries.length === 0 ? <div className="cart-empty-inline"><Icon name="calendar" /><p>Tambahkan layanan pilihan Anda dari daftar di atas.</p></div> : <ul className="cart-list">{entries.map((item) => <li className="cart-item" key={item.id}>
       <div className="cart-item-info"><b>{item.name}</b>{item.service.note && <small>{item.service.note}</small>}<span>{formatRupiah(item.service.price)} / layanan</span></div>
       <div className="cart-item-controls" aria-label={`Jumlah ${item.name}`}><button type="button" onClick={() => onChange(changeCartQuantity(item.name, -1, item.id))} aria-label={`Kurangi ${item.name}`}>−</button><span aria-live="polite">{item.quantity}</span><button type="button" onClick={() => onChange(changeCartQuantity(item.name, 1, item.id))} aria-label={`Tambah ${item.name}`}>+</button><button className="remove-item" type="button" onClick={() => onChange(removeFromCart(item.name, item.id))} aria-label={`Hapus ${item.name}`}>Hapus</button></div>

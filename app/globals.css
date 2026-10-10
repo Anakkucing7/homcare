@@ -155,8 +155,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .category-art-1 { color: #4b91ac; background: linear-gradient(145deg, #effaff, #dceef7); }
 
 .password-field { position: relative; }
-.password-field input { padding-right: 100px !important; }
-.password-toggle { position: absolute; right: 11px; bottom: 10px; padding: 2px 0; border: 0; color: var(--blue); background: white; cursor: pointer; font-size: 10px; font-weight: 700; }
+.password-field input { padding-right: 54px !important; }
+.password-toggle { position: absolute; right: 4px; bottom: 4px; width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 8px; color: var(--blue); background: transparent; cursor: pointer; }
+.password-toggle:hover { background: var(--ice); }
+.password-toggle svg { width: 20px; height: 20px; }
 
 .booking-steps-section { background: var(--navy-deep); color: white; }
 .booking-steps { min-height: 370px; padding-block: 67px; display: grid; grid-template-columns: .85fr 1.15fr; gap: 92px; align-items: center; }
@@ -359,7 +361,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .reservation-heading > p:last-child { margin: 10px 0 0; color: var(--muted); font-size: 13px; }
 .reservation-layout { display: grid; grid-template-columns: 1fr .88fr; gap: 22px; align-items: start; }
 .cart-card, .visit-card, .cart-empty { padding: 25px; border: 1px solid var(--line); border-radius: 15px; background: white; }
-.cart-card-heading { display: flex; align-items: end; justify-content: space-between; gap: 15px; }
+.cart-card-heading { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 15px; }
+.clear-cart-button { min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; color: #52728b; background: white; cursor: pointer; font-size: 11px; font-weight: 700; }
+.clear-cart-button:hover { border-color: #9bcde0; color: var(--navy); background: var(--ice); }
 .cart-card-heading .section-kicker, .visit-card > .section-kicker { margin-bottom: 4px; }
 .cart-card-heading h2, .visit-card h2 { margin: 0; color: var(--navy); font-size: 21px; letter-spacing: -.6px; }
 .cart-card-heading h2 span { color: var(--muted); font-size: 14px; font-weight: 500; }
@@ -396,9 +400,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .auth-card > .section-kicker, .account-card > .section-kicker { margin-bottom: 5px; }
 .auth-card h1, .account-card h1 { margin: 0; color: var(--navy-deep); font-size: 28px; line-height: 1.2; letter-spacing: -1px; }
 .auth-description { margin: 10px 0 19px; color: var(--muted); font-size: 11px; line-height: 1.7; }
-.auth-role-switch { padding: 4px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; border-radius: 10px; background: var(--ice); }
-.auth-role-switch button { min-height: 39px; border: 0; border-radius: 7px; color: #658096; background: transparent; cursor: pointer; font-size: 11px; font-weight: 700; transition: color .15s ease, background .15s ease, box-shadow .15s ease; }
-.auth-role-switch button.active { color: var(--navy); background: white; box-shadow: 0 2px 8px #123d6810; }
 .auth-form { margin-top: 18px; display: grid; gap: 12px; }
 .auth-form label { display: grid; gap: 5px; color: #3d5d78; font-size: 10px; font-weight: 700; }
 .auth-form input { width: 100%; min-height: 43px; padding: 9px 11px; border: 1px solid #d5e4ec; border-radius: 8px; color: var(--navy); background: white; font-size: 11px; font-weight: 500; }
@@ -407,10 +408,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .auth-inline-link { justify-self: end; padding: 0; border: 0; color: var(--blue); background: transparent; cursor: pointer; font-size: 10px; font-weight: 700; }
 .auth-submit:disabled { cursor: wait; opacity: .75; }
 .auth-notice { margin: 0; color: #315d7d; font-size: 10px; line-height: 1.65; }
-.auth-switch-copy, .auth-owner-note { margin: 16px 0 0; color: var(--muted); font-size: 10px; text-align: center; }
+.auth-switch-copy { margin: 16px 0 0; color: var(--muted); font-size: 10px; text-align: center; }
 .auth-switch-copy button { padding: 0; border: 0; color: var(--blue); background: transparent; cursor: pointer; font-size: inherit; font-weight: 700; }
 .auth-switch-copy a { color: var(--blue); font-weight: 700; }
-.auth-owner-note { margin-top: 17px; }
 .auth-setup-note { margin-top: 18px; padding: 13px; display: grid; gap: 5px; border-radius: 9px; color: #57758c; background: var(--ice); font-size: 10px; line-height: 1.65; }
 .auth-setup-note b { color: var(--navy); }
 .auth-setup-note code { color: var(--navy); }
@@ -702,9 +702,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .auth-brand { margin-bottom: 28px; }
 .auth-card h1, .account-card h1 { font-family: "Bricolage Grotesque", sans-serif; font-size: 32px; }
 .auth-description { font-size: 13px; }
-.auth-role-switch button, .auth-form label, .auth-form input, .auth-inline-link, .auth-notice, .auth-switch-copy, .auth-owner-note, .auth-guest-link { font-size: 12px; }
+.auth-form label, .auth-form input, .auth-inline-link, .auth-notice, .auth-switch-copy, .auth-guest-link { font-size: 12px; }
 .auth-form input { min-height: 48px; }
-.password-toggle { bottom: 13px; font-size: 11px; }
 .auth-guest-link { margin-top: 24px; }
 .account-card { width: min(100%, 540px); border-radius: 22px; }
 .owner-dashboard { background: #f3f8fb; }
@@ -819,7 +818,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .auth-form label, .owner-dashboard label, .visit-form label { font-size: 13px; }
   .auth-form input, .owner-dashboard input:not([type="checkbox"]), .owner-dashboard select, .owner-dashboard textarea { min-height: 48px; font-size: 16px; }
   .service-search input { font-size: 16px; }
-  .auth-role-switch button, .auth-submit, .owner-button, .owner-sidebar > a:not(.brand), .owner-sidebar-signout .button, .icon-button { min-height: 44px; }
+  .auth-submit, .owner-button, .owner-sidebar > a:not(.brand), .owner-sidebar-signout .button, .icon-button { min-height: 44px; }
   .icon-button { width: 44px; }
   .owner-sidebar > a:not(.brand), .owner-sidebar-signout .button { font-size: 12px; }
   .owner-topbar, .owner-panel-title { flex-wrap: wrap; }

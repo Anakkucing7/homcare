@@ -1,6 +1,6 @@
 import type { SVGProps } from "react";
 
-type IconName = "heart" | "home" | "shield" | "clock" | "calendar" | "arrow" | "phone" | "close" | "pin" | "check" | "syringe" | "droplet" | "tube" | "bandage";
+type IconName = "heart" | "home" | "shield" | "clock" | "calendar" | "arrow" | "phone" | "close" | "pin" | "check" | "syringe" | "droplet" | "tube" | "bandage" | "eye" | "eyeOff";
 
 const paths: Record<IconName, React.ReactNode> = {
   heart: <><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/><path d="M3 12h5l2-3 3 7 2-4h6"/></>,
@@ -17,6 +17,8 @@ const paths: Record<IconName, React.ReactNode> = {
   droplet: <><path d="M12 2.5S5 10 5 15a7 7 0 0 0 14 0c0-5-7-12.5-7-12.5Z"/><path d="M9 16a3 3 0 0 0 3 3"/></>,
   tube: <><path d="M8 3h8M10 3v11a4 4 0 0 0 8 0V3M10 10h8"/><path d="M4 5h2v14H4zM3 19h4"/></>,
   bandage: <><path d="m4 8 4-4a3 3 0 0 1 4 0l8 8a3 3 0 0 1 0 4l-4 4a3 3 0 0 1-4 0l-8-8a3 3 0 0 1 0-4Z"/><path d="m9 9 6 6M11 7l2 2M7 11l2 2M15 13l2 2M13 17l2 2"/></>,
+  eye: <><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></>,
+  eyeOff: <><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7s-.8 1.6-2.3 3.2M6.6 6.6C3.8 8.3 2 12 2 12s3.6 7 10 7c1 0 2-.2 2.9-.5"/></>,
 };
 
 export function Icon({ name, ...props }: SVGProps<SVGSVGElement> & { name: IconName }) {
