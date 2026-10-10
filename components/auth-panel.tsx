@@ -36,13 +36,13 @@ export function AuthPanel({ configured }: { configured: boolean }) {
         password,
         options: {
           data: { full_name: fullName, phone },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/reservasi`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/akun`,
         },
       });
       setBusy(false);
       if (error) return setNotice(error.message);
       if (!result.session) return setNotice("Akun dibuat. Periksa email Anda untuk mengonfirmasi akun sebelum masuk.");
-      router.replace("/reservasi");
+      router.replace("/akun");
       router.refresh();
       return;
     }
@@ -67,7 +67,11 @@ export function AuthPanel({ configured }: { configured: boolean }) {
       return setNotice("Profil belum siap. Pastikan supabase/schema.sql sudah dijalankan.");
     }
     setBusy(false);
-    router.replace(profile.role === "owner" ? "/owner" : "/reservasi");
+    if (profile.role === "owner") router.replace("/owner");
+    else {
+      const { data: patientProfile, error: addressError } = await supabase.from("profiles").select("address").eq("id", result.user.id).maybeSingle();
+      router.replace(addressError || !patientProfile?.address?.trim() ? "/akun" : "/reservasi");
+    }
     router.refresh();
   }
 

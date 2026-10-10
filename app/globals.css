@@ -403,6 +403,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .auth-form { margin-top: 18px; display: grid; gap: 12px; }
 .auth-form label { display: grid; gap: 5px; color: #3d5d78; font-size: 10px; font-weight: 700; }
 .auth-form input { width: 100%; min-height: 43px; padding: 9px 11px; border: 1px solid #d5e4ec; border-radius: 8px; color: var(--navy); background: white; font-size: 11px; font-weight: 500; }
+.auth-form textarea { width: 100%; min-height: 84px; padding: 10px 11px; border: 1px solid #d5e4ec; border-radius: 8px; color: var(--navy); background: white; font: inherit; font-weight: 500; resize: vertical; }
 .auth-form input::placeholder { color: #9aabba; }
 .auth-form .auth-submit { margin-top: 2px; }
 .auth-inline-link { justify-self: end; padding: 0; border: 0; color: var(--blue); background: transparent; cursor: pointer; font-size: 10px; font-weight: 700; }
@@ -827,7 +828,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .auth-page, .account-page { min-height: 100vh; min-height: 100svh; padding: 16px; }
   .auth-layout { width: min(100%, 480px); grid-template-columns: 1fr; gap: 12px; }
   .auth-form label, .owner-dashboard label, .visit-form label { font-size: 13px; }
-  .auth-form input, .owner-dashboard input:not([type="checkbox"]), .owner-dashboard select, .owner-dashboard textarea { min-height: 48px; font-size: 16px; }
+  .auth-form input, .auth-form textarea, .owner-dashboard input:not([type="checkbox"]), .owner-dashboard select, .owner-dashboard textarea { min-height: 48px; font-size: 16px; }
   .service-search input { font-size: 16px; }
   .auth-submit, .owner-button, .owner-sidebar > a:not(.brand), .owner-sidebar-signout .button, .icon-button { min-height: 44px; }
   .icon-button { width: 44px; }

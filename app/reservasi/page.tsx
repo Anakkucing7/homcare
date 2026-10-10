@@ -25,7 +25,7 @@ export default function ReservationPage() {
   const [ready, setReady] = useState(false);
   const [notice, setNotice] = useState("");
   const [minimumDate, setMinimumDate] = useState("");
-  const [profile, setProfile] = useState({ full_name: "", phone: "", signedIn: false });
+  const [profile, setProfile] = useState({ full_name: "", phone: "", address: "", signedIn: false });
   const [categories, setCategories] = useState(fallbackCategories);
   const [services, setServices] = useState(fallbackServices);
   const [categoryId, setCategoryId] = useState("all");
@@ -74,8 +74,8 @@ export default function ReservationPage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data } = await supabase.from("profiles").select("full_name, phone").eq("id", user.id).maybeSingle();
-      if (active) setProfile((current) => ({ full_name: current.full_name || data?.full_name || "", phone: current.phone || data?.phone || "", signedIn: true }));
+      const { data } = await supabase.from("profiles").select("full_name, phone, address").eq("id", user.id).maybeSingle();
+      if (active) setProfile((current) => ({ full_name: current.full_name || data?.full_name || "", phone: current.phone || data?.phone || "", address: current.address || data?.address || "", signedIn: true }));
     })();
     return () => { active = false; };
   }, []);
@@ -143,7 +143,7 @@ export default function ReservationPage() {
             <label>Nama pemesan<input name="name" autoComplete="name" required placeholder="Nama lengkap" value={profile.full_name} onChange={(event) => setProfile((current) => ({ ...current, full_name: event.target.value }))} /></label>
             <label>Nomor WhatsApp<input name="phone" type="tel" inputMode="tel" autoComplete="tel" required placeholder="0812 3456 7890" aria-describedby="phone-help" value={profile.phone} onChange={(event) => { event.currentTarget.setCustomValidity(""); setProfile((current) => ({ ...current, phone: event.target.value })); }} /></label><small id="phone-help" className="field-hint">Gunakan nomor yang bisa menerima pesan WhatsApp.</small>
             <div className="visit-form-row"><label>Tanggal<input name="date" type="date" min={minimumDate} required /></label><label>Waktu<input name="time" type="time" required /></label></div>
-            <label>Alamat kunjungan<textarea name="address" autoComplete="street-address" required rows={2} placeholder="Jalan, nomor rumah, kecamatan, kota" /></label><label>Catatan <span className="optional">opsional</span><textarea name="notes" rows={2} placeholder="Hal yang perlu diketahui sebelum kunjungan" /></label>
+            <label>Alamat kunjungan<textarea name="address" autoComplete="street-address" required rows={2} placeholder="Jalan, nomor rumah, kecamatan, kota" value={profile.address} onChange={(event) => setProfile((current) => ({ ...current, address: event.target.value }))} /></label><label>Catatan <span className="optional">opsional</span><textarea name="notes" rows={2} placeholder="Hal yang perlu diketahui sebelum kunjungan" /></label>
             <p className="form-disclosure">Permintaan dikirim melalui WhatsApp untuk ditinjau dan dikonfirmasi.</p><button className="button button-primary submit-booking" type="submit" disabled={!entries.length}>Lanjut ke WhatsApp <Icon name="arrow" /></button><p className="form-notice" aria-live="polite">{notice}</p>
           </form>
         </section>

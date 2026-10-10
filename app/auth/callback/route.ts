@@ -5,7 +5,7 @@ import { isSupabaseConfigured } from "../../../lib/supabase/config";
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
   const requestedPath = request.nextUrl.searchParams.get("next");
-  const next = requestedPath?.startsWith("/") && !requestedPath.startsWith("//") ? requestedPath : "/reservasi";
+  const next = requestedPath?.startsWith("/") && !requestedPath.startsWith("//") ? requestedPath : "/akun";
   if (code && isSupabaseConfigured) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);

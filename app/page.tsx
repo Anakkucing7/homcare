@@ -10,6 +10,20 @@ import { isSupabaseConfigured } from "../lib/supabase/config";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [account, setAccount] = useState<{ role: string } | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) { setAuthChecked(true); return; }
+    let active = true;
+    void (async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: profile } = user ? await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle() : { data: null };
+      if (active) { setAccount(profile); setAuthChecked(true); }
+    })();
+    return () => { active = false; };
+  }, []);
 
 function goToBooking() {
     setMenuOpen(false);
@@ -31,7 +45,7 @@ function goToBooking() {
           <a href="#layanan" onClick={() => setMenuOpen(false)}>Layanan</a>
           <a href="#testimoni" onClick={() => setMenuOpen(false)}>Testimoni</a>
           <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>
-          <Link href="/masuk" onClick={() => setMenuOpen(false)}>Masuk</Link>
+          {authChecked && account ? <Link href={account.role === "owner" ? "/owner" : "/akun"} onClick={() => setMenuOpen(false)}>{account.role === "owner" ? "Dashboard" : "Akun saya"}</Link> : <Link href="/masuk" onClick={() => setMenuOpen(false)}>Masuk</Link>}
           <Link className="button button-primary nav-cta" href="/reservasi" onClick={goToBooking}>Reservasi <Icon name="arrow" /></Link>
         </nav>
       </header>
