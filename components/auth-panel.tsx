@@ -52,7 +52,10 @@ export function AuthPanel({ configured }: { configured: boolean }) {
         redirectTo: `${window.location.origin}/auth/callback?next=/atur-kata-sandi`,
       });
       setBusy(false);
-      return setNotice(error ? error.message : "Tautan untuk membuat kata sandi baru telah dikirim. Periksa email Anda.");
+      const message = error?.message.toLowerCase().includes("rate limit")
+        ? "Terlalu banyak permintaan email baru-baru ini. Tunggu sekitar 1 jam sebelum meminta tautan reset lagi."
+        : error?.message ?? "Tautan untuk membuat kata sandi baru telah dikirim. Periksa email Anda.";
+      return setNotice(message);
     }
 
     const { data: result, error } = await supabase.auth.signInWithPassword({ email, password });
