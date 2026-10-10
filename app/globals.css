@@ -802,3 +802,38 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 @media (max-width: 380px) {
   .visit-form-row { grid-template-columns: 1fr; }
 }
+@media (max-width: 760px) {
+  .site-header { height: 68px; padding-inline: 20px; }
+  .menu-toggle { width: 44px; height: 44px; padding: 12px; display: flex; flex-direction: column; justify-content: center; gap: 6px; border: 1px solid var(--line); border-radius: 50%; background: white; cursor: pointer; }
+  .main-nav { position: absolute; top: 67px; left: 0; right: 0; display: none; padding: 12px 20px 19px; align-items: stretch; gap: 0; border-bottom: 1px solid var(--line); background: white; box-shadow: 0 14px 25px #123d6810; }
+  .main-nav.is-open { display: flex; flex-direction: column; }
+  .main-nav > a { min-height: 44px; display: flex; align-items: center; border-bottom: 1px solid #edf3f6; }
+  .main-nav .nav-cta { margin-top: 13px; }
+}
+@media (max-width: 1000px) {
+  .auth-layout { grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr); gap: 18px; }
+}
+@media (max-width: 720px) {
+  .auth-page, .account-page { min-height: 100vh; min-height: 100svh; padding: 16px; }
+  .auth-layout { width: min(100%, 480px); grid-template-columns: 1fr; gap: 12px; }
+  .auth-form label, .owner-dashboard label, .visit-form label { font-size: 13px; }
+  .auth-form input, .owner-dashboard input:not([type="checkbox"]), .owner-dashboard select, .owner-dashboard textarea { min-height: 48px; font-size: 16px; }
+  .service-search input { font-size: 16px; }
+  .auth-role-switch button, .auth-submit, .owner-button, .owner-sidebar > a:not(.brand), .owner-sidebar-signout .button, .icon-button { min-height: 44px; }
+  .icon-button { width: 44px; }
+  .owner-sidebar > a:not(.brand), .owner-sidebar-signout .button { font-size: 12px; }
+  .owner-topbar, .owner-panel-title { flex-wrap: wrap; }
+  .owner-editor-actions { flex-wrap: wrap; }
+  .owner-button { font-size: 11px; }
+  .owner-stats span, .owner-stats small { font-size: 10px; }
+  .benefit p, .steps-list p, .service-area p:last-child, .faq-list details p { font-size: 12px; }
+  .steps-list h3, .faq-list summary { font-size: 12px; }
+  .home-category-count, .home-category-copy small, .image-caption small, .demo-label { font-size: 10px; }
+  .closing-cta p, .closing-cta > a, .footer-main > p { font-size: 12px; }
+  .footer-bottom { font-size: 10px; }
+  .reservation-progress li { font-size: 12px; }
+  .catalog-cart-link { min-height: 44px; font-size: 11px; }
+  .reservation-footer { min-height: 60px; padding: 12px 20px; flex-wrap: wrap; justify-content: flex-start; font-size: 11px; }
+  .field-hint, .form-disclosure, .form-notice, .transport-note { font-size: 11px; }
+  .floating-cart { right: 14px; bottom: max(12px, env(safe-area-inset-bottom)); font-size: 12px; }
+}
