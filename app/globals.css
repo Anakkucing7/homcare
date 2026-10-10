@@ -720,6 +720,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .owner-service-summary b { font-size: 14px; }
 .owner-service-summary span, .owner-service-summary small { font-size: 12px; }
 .owner-category-row { grid-template-columns: minmax(130px, 1fr) minmax(160px, 1.3fr) minmax(170px, 1.5fr) 90px 125px auto; }
+@media (min-width: 761px) and (max-height: 850px) {
+  .auth-page { padding-block: 12px; }
+  .auth-layout { gap: 16px; }
+  .auth-visual { height: min(650px, calc(100svh - 24px)); }
+  .auth-card { padding-block: 22px; }
+  .auth-brand { margin-bottom: 14px; }
+  .auth-description { margin-block: 6px 12px; }
+  .auth-form { margin-top: 12px; gap: 8px; }
+  .auth-form label { gap: 3px; }
+  .auth-form input { min-height: 44px; }
+  .auth-switch-copy { margin-top: 10px; }
+  .auth-guest-link { margin-top: 14px; }
+}
 .owner-category-row .owner-checkbox { align-self: center; }
 @media (max-width: 1000px) {
   .hero { gap: 28px; padding-block: 34px 46px; }
