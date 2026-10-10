@@ -10,7 +10,7 @@ export default async function OwnerPage() {
   const claims = data?.claims;
   if (!claims?.sub) redirect("/masuk");
   const { data: profile } = await supabase.from("profiles").select("role, full_name").eq("id", claims.sub).maybeSingle();
-  if (profile?.role !== "owner") redirect("/akun");
+  if (profile?.role !== "owner") redirect("/reservasi");
 
   return <OwnerDashboard initialName={profile.full_name} />;
 }

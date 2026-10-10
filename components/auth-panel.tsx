@@ -36,13 +36,13 @@ export function AuthPanel({ configured }: { configured: boolean }) {
         password,
         options: {
           data: { full_name: fullName, phone },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/akun`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/reservasi`,
         },
       });
       setBusy(false);
       if (error) return setNotice(error.message);
       if (!result.session) return setNotice("Akun dibuat. Periksa email Anda untuk mengonfirmasi akun sebelum masuk.");
-      router.replace("/akun");
+      router.replace("/reservasi");
       router.refresh();
       return;
     }
@@ -67,7 +67,7 @@ export function AuthPanel({ configured }: { configured: boolean }) {
       return setNotice("Profil belum siap. Pastikan supabase/schema.sql sudah dijalankan.");
     }
     setBusy(false);
-    router.replace(profile.role === "owner" ? "/owner" : "/akun");
+    router.replace(profile.role === "owner" ? "/owner" : "/reservasi");
     router.refresh();
   }
 
