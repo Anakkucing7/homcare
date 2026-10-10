@@ -72,7 +72,7 @@ export function AuthPanel({ configured }: { configured: boolean }) {
   }
 
   return <main className="auth-page"><div className="auth-layout"><aside className="auth-visual"><img src="/images/homecare-visit.jpg" alt="Perawat mendampingi pasien di rumah" /><span className="auth-visual-shade" /><div><p className="section-kicker">Perawatan lebih dekat</p><h2>Nyaman dirawat di tempat yang paling akrab.</h2><p>Pesan kunjungan homecare dengan mudah, bersama tenaga kesehatan profesional.</p></div></aside>
-    <section className="auth-card" aria-labelledby="auth-title">
+    <section className={`auth-card${registering ? " is-registering" : ""}`} aria-labelledby="auth-title">
       <Link className="auth-brand" href="/"><span className="brand-mark"><Icon name="heart" /></span><span className="brand-name">Layanan <b>Homecare</b></span></Link>
       <p className="section-kicker">Akun Homecare</p>
       <h1 id="auth-title">{resetting ? "Atur ulang kata sandi." : registering ? "Buat akun pasien." : "Selamat datang kembali."}</h1>
