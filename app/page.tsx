@@ -40,9 +40,9 @@ function goToBooking() {
           <span></span><span></span>
         </button>
         <nav id="main-nav" className={`main-nav${menuOpen ? " is-open" : ""}`} aria-label="Navigasi utama">
-          <a href="#beranda" onClick={() => setMenuOpen(false)}>Beranda</a>
+          <a className="nav-home is-active" href="#beranda" aria-current="page" onClick={() => setMenuOpen(false)}>Beranda</a>
           <a href="#tentang" onClick={() => setMenuOpen(false)}>Tentang</a>
-          <a href="#layanan" onClick={() => setMenuOpen(false)}>Layanan</a>
+          <a className="nav-services" href="#layanan" onClick={() => setMenuOpen(false)}>Layanan <Icon name="chevronDown" /></a>
           <a href="#testimoni" onClick={() => setMenuOpen(false)}>Testimoni</a>
           <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>
           {authChecked && account ? <Link href={account.role === "owner" ? "/owner" : "/akun"} onClick={() => setMenuOpen(false)}>{account.role === "owner" ? "Dashboard" : "Akun saya"}</Link> : <Link href="/masuk" onClick={() => setMenuOpen(false)}>Masuk</Link>}
@@ -53,22 +53,23 @@ function goToBooking() {
       <main>
         <section id="beranda" className="hero section-wrap">
           <div className="hero-copy">
-            <p className="hero-eyebrow">HOMECARE KE RUMAH · JABODETABEK</p>
-            <h1>Perawatan kesehatan yang tenang, di rumah Anda.</h1>
+            <p className="hero-eyebrow"><Icon name="home" /> HOMECARE KE RUMAH · JABODETABEK</p>
+            <h1>Perawatan kesehatan yang tenang, <span>di rumah Anda.</span></h1>
             <p>Infus, suntik, cek darah, NGT, dan perawatan luka oleh perawat STR aktif. Ajukan reservasi dengan mudah, lalu tim kami mengonfirmasi melalui WhatsApp.</p>
             <div className="hero-actions">
               <Link className="button button-primary" href="/reservasi">Reservasi sekarang <Icon name="arrow" /></Link>
               <a className="button button-secondary" href="#layanan">Lihat layanan</a>
             </div>
             <div className="hero-proof" aria-label="Informasi layanan">
-              <span><Icon name="pin" /> Jabodetabek</span>
-              <span><Icon name="shield" /> Perawat STR aktif</span>
-              <span><Icon name="check" /> Tensi & SpO₂ gratis</span>
+              <span><Icon name="pin" /><span><b>Jabodetabek</b><small>Area layanan luas</small></span></span>
+              <span><Icon name="nurse" /><span><b>Perawat STR aktif</b><small>Profesional & berpengalaman</small></span></span>
+              <span><Icon name="shield" /><span><b>Tensi & SpO₂ gratis</b><small>Saat kunjungan pertama</small></span></span>
             </div>
           </div>
           <div className="hero-visual">
-            <Image src="/images/homecare-visit.jpg" alt="Pendampingan perawat untuk pasien di rumah" fill priority sizes="(max-width: 720px) calc(100vw - 60px), (max-width: 1000px) 50vw, 600px" />
-            <div className="image-caption"><span className="caption-icon"><Icon name="home" /></span><span><b>Dirawat di tempat yang akrab.</b><small>Di rumah, kantor, dan lokasi Anda.</small></span></div>
+            <Image src="/images/homecare-visit.jpg" alt="Pendampingan perawat untuk pasien di rumah" fill priority sizes="(max-width: 720px) calc(100vw - 60px), (max-width: 1100px) 50vw, (max-width: 1460px) 52vw, 760px" />
+            <div className="image-caption"><span className="caption-icon"><Icon name="home" /></span><span><b>Dirawat di tempat yang akrab.</b><small>Di rumah, kantor, dan lokasi Anda.</small></span><Icon className="caption-arrow" name="arrowRight" /></div>
+            <p className="hero-handwritten">Sehat bersama,<br />di rumah <span>♥</span></p>
           </div>
         </section>
 

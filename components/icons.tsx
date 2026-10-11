@@ -1,6 +1,6 @@
 import type { SVGProps } from "react";
 
-type IconName = "heart" | "home" | "shield" | "clock" | "calendar" | "arrow" | "phone" | "close" | "pin" | "check" | "syringe" | "droplet" | "tube" | "bandage" | "eye" | "eyeOff";
+type IconName = "heart" | "home" | "shield" | "clock" | "calendar" | "arrow" | "arrowRight" | "chevronDown" | "nurse" | "phone" | "close" | "pin" | "check" | "syringe" | "droplet" | "tube" | "bandage" | "eye" | "eyeOff";
 
 const paths: Record<IconName, React.ReactNode> = {
   heart: <><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/><path d="M3 12h5l2-3 3 7 2-4h6"/></>,
@@ -9,6 +9,9 @@ const paths: Record<IconName, React.ReactNode> = {
   clock: <><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
   calendar: <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></>,
   arrow: <><path d="M7 17 17 7M7 7h10v10"/></>,
+  arrowRight: <><path d="M4 12h15M13 5l7 7-7 7"/></>,
+  chevronDown: <path d="m6 9 6 6 6-6"/>,
+  nurse: <><path d="M8 5h8l1 4H7l1-4Z"/><path d="M9 5a3 3 0 0 1 6 0M12 6v2M10 15v-1a2 2 0 1 1 4 0v1"/><path d="M5 21a7 7 0 0 1 14 0M7 17l-2 4M17 17l2 4"/><path d="M4 11c0 3 2 5 5 5m11-5c0 3-2 5-5 5"/></>,
   phone: <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.7L7.1 10a16 16 0 0 0 6 6l1.6-1.9a2 2 0 0 1 1.7-.6l3 .5a2 2 0 0 1 1.6 1.9Z"/>,
   close: <><path d="m18 6-12 12M6 6l12 12"/></>,
   pin: <><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></>,
