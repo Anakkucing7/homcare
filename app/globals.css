@@ -865,4 +865,4 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .site-header { padding-inline: 16px; }
   .hero.section-wrap { width: calc(100% - 32px); }
 }
-.hero-copy > .hero-eyebrow { padding: 5px 10px; font-size: 9px; }
+.hero-copy > .hero-eyebrow { margin: 0 0 14px; padding: 5px 10px; font-size: 9px; }
