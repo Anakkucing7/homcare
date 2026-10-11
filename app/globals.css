@@ -854,7 +854,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 /* Keep the home hero and header aligned closer to the viewport edges on desktop. */
 .site-header { padding-inline: max(32px, calc((100vw - 1320px) / 2)); }
 .hero.section-wrap { width: min(1320px, calc(100% - 64px)); }
-.hero-eyebrow { padding: 5px 10px; font-size: 5px; }
 @media (max-width: 1000px) {
   .hero.section-wrap { width: min(calc(100% - 48px), 860px); }
 }
@@ -866,3 +865,4 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .site-header { padding-inline: 16px; }
   .hero.section-wrap { width: calc(100% - 32px); }
 }
+.hero-eyebrow { padding: 5px 10px; font-size: 5px; }
